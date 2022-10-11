@@ -300,6 +300,23 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
 
 
 def extract_emg_featues(dataframe, fs):
+    features_df = pd.DataFrame(columns=['rmse', 
+                                    'mav',
+                                    'var',
+                                    'energy',
+                                    'mnf',
+                                    'mdf',
+                                    'zc',
+                                    'fr',
+                                    'mav_arr_0',
+                                    'mav_arr_1',
+                                    'mav_arr_2',
+                                    'mav_arr_3',
+                                    'std_0',
+                                    'std_1',
+                                    'std_2',
+                                    'std_3',
+                                   ])
     for i in tqdm(range(0, dataframe.shape[0])):
         emg = dataframe[i, 1:]
         emg = nk.emg_clean(emg, sampling_rate=fs)
@@ -321,16 +338,39 @@ def extract_emg_featues(dataframe, fs):
         dwav = pywt.Wavelet('db3')
         dwtCoeffs = pywt.wavedec(emg, wavelet=dwav, level=levels)
         detailedCoeff = dwtCoeffs[1:]
-        mav = np.array([1 / len(detailedCoeff[i]) * np.sum(np.abs(detailedCoeff[i])) for i in range(levels)])
-        std = np.array([Std(detailedCoeff, mav, i) for i in range(levels)])
+        mav_arr = np.array([1 / len(detailedCoeff[i]) * np.sum(np.abs(detailedCoeff[i])) for i in range(levels)])
+        std = np.array([Std(detailedCoeff, mav_arr, i) for i in range(levels)])
+
+        # added this to clean a bit
+        what_to_stack = (rmse,
+                         mav,
+                         var,
+                         energy,
+                         mnf,
+                         mdf,
+                         zc,
+                         fr,
+                         mav_arr[0],
+                         mav_arr[1],
+                         mav_arr[2],
+                         mav_arr[3],
+                         std[0],
+                         std[1],
+                         std[2],
+                         std[3])
+
 
         if i == 0:
-            emg_features = np.hstack((rmse, mav, var, energy, mnf, mdf, zc, fr, mav, std))
+            emg_features = np.hstack(what_to_stack)
+            features_df.loc[i] = emg_features
         else:
-            temp = np.hstack((rmse, mav, var, energy, mnf, mdf, zc, fr, mav, std))
-            emg_features = np.vstack((emg_features, temp))
+            temp = np.hstack(what_to_stack)
+            
+#             emg_features = np.vstack((emg_features, temp))
+            features_df.loc[i] = temp
 
-    return emg_features
+    # now it returns a pd Dataframe
+    return features_df
 
 
 # Returns in a dictionary all the signal acquisitions in different DataFrames, indexed by file name

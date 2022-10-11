@@ -13,7 +13,6 @@ pyEDA/
 .idea/
 signals_example.txt
 questionnaires.pkl
-sensors_import_support.py
 
 # Distribution / packaging
 .Python
