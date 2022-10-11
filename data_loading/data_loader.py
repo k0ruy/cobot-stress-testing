@@ -54,6 +54,7 @@ def move_and_rename_files(data_dir: Path) -> None:
 def delete_unnecessary_files(data_dir: Path) -> None:
     """
     Delete the unnecessary files.
+    @param data_dir: The directory to delete the files in.
     :return: None
     """
     rmtree(data_dir / "Data Cobot Experiment")
@@ -62,6 +63,8 @@ def delete_unnecessary_files(data_dir: Path) -> None:
 def main(data_dir: Path, zip_f: Path) -> None:
     """
     Main function to run the script.
+    @param data_dir: The directory to unzip the file into.
+    @param zip_f: The zipped file to unzip.
     :return: None
     """
     # make sure the directory is clean and it exists:
