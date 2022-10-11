@@ -6,10 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
-# folders
+# folders and random files
 experiments/
 pyEDA/
 .ipynb_checkpoints/
+signals_example.txt
+questionnaires.pkl
+sensors_import_support.py
 
 # Distribution / packaging
 .Python
