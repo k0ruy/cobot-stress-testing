@@ -10,6 +10,7 @@ __pycache__/
 experiments/
 pyEDA/
 .ipynb_checkpoints/
+.idea/
 signals_example.txt
 questionnaires.pkl
 sensors_import_support.py
