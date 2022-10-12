@@ -49,6 +49,7 @@ def move_and_rename_files(data_dir: Path) -> None:
                 new_filename = filename[:filename.index(t) + len(t)] + ".txt"
                 os.rename(filename, new_filename)
                 os.rename(new_filename, data_dir / t / new_filename.split("\\")[-1])
+                # os.rename(new_filename, data_dir / t / new_filename.split("/")[-1])  # unix compliant
 
 
 def delete_unnecessary_files(data_dir: Path) -> None:

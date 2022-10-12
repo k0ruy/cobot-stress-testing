@@ -7,8 +7,9 @@ __pycache__/
 *.so
 
 # folders and random files
-experiments/
+Data Cobot Experiment.zip/
 pyEDA/
+experiments/
 .ipynb_checkpoints/
 .idea/
 signals_example.txt
@@ -135,3 +136,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/Data Cobot Experiment.zip
