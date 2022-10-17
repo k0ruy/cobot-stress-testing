@@ -14,7 +14,7 @@ experiments/
 .idea/
 signals_example.txt
 questionnaires.pkl
-.npy
+*.npy
 temp/
 
 
