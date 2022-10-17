@@ -322,12 +322,13 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
         entropyWavelet = np.array([Entropy(energyWavelet[i]) for i in range(levels)])  # array len(levels)
 
         # MFCC
+        # n_mfcc = 20 already set before loop
         mfccs = feature.mfcc(eda, sr=fs, n_mfcc=n_mfcc)
-        meanMFCCS = np.mean(mfccs, axis=-1)  # 20
-        stdMFCCS = np.std(mfccs, axis=-1)  # 20
-        medianMFCCS = np.median(mfccs, axis=-1)  # 20
-        kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)  # 20
-        skewMFCCS = scipy.stats.skew(mfccs, axis=-1)  # 20
+        meanMFCCS = np.mean(mfccs, axis=-1)  # n_mfcc
+        stdMFCCS = np.std(mfccs, axis=-1)  # n_mfcc
+        medianMFCCS = np.median(mfccs, axis=-1)  # n_mfcc
+        kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)  # n_mfcc
+        skewMFCCS = scipy.stats.skew(mfccs, axis=-1)  # n_mfcc
 
         what_to_stack = (meanEda, stdEda, kurtEda, skewEda, meanDerivative,
                          meanNegativeDerivative, activity, mobility, complexity,
@@ -337,12 +338,8 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
                          distributionEnergy, entropyWavelet, meanMFCCS, stdMFCCS,
                          medianMFCCS, kurtMFCCS, skewMFCCS)
 
-        if i == 0:
-            eda_features = np.hstack(what_to_stack)
-            features_df.loc[i] = eda_features
-        else:
-            temp = np.hstack(what_to_stack)
-            features_df.loc[i] = temp
+        eda_features = np.hstack(what_to_stack)
+        features_df.loc[i] = eda_features
 
     # now it returns a pd Dataframe
     return features_df
@@ -408,12 +405,8 @@ def extract_emg_featues(dataframe, fs):
                          std[2],
                          std[3])
 
-        if i == 0:
-            emg_features = np.hstack(what_to_stack)
-            features_df.loc[i] = emg_features
-        else:
-            temp = np.hstack(what_to_stack)
-            features_df.loc[i] = temp
+        emg_features = np.hstack(what_to_stack)
+        features_df.loc[i] = emg_features
 
     # now it returns a pd Dataframe
     return features_df
