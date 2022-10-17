@@ -13,7 +13,6 @@ import pyhrv
 
 
 def import_opensignals(filename):
-
     with open(filename, 'r') as sig_file:
         header = sig_file.readline()
         header = sig_file.readline()
@@ -209,6 +208,26 @@ def extract_time_and_freq_hrv_features(dataframe, fs):
 
 
 def extract_eda_time_and_frequency_features(dataframe, fs, window):
+    features_df = pd.DataFrame(columns=['meanEda',
+                                        'stdEda',
+                                        'kurtEda',
+                                        'skewEda',
+                                        'meanDerivative',
+                                        'meanNegativeDerivative',
+                                        'activity',
+                                        'mobility',
+                                        'complexity',
+                                        'peaksCount',
+                                        'meanPeakAmplitude',
+                                        'meanRiseTime',
+                                        'sumPeakAmplitude',
+                                        'sumRiseTime',
+                                        'sma',
+                                        'energy',
+                                        'varSpectralPower',
+                                        'totalEnergyWavelet'
+                                        ])  # add long dicts
+
     for i in tqdm(range(0, dataframe.shape[0])):
 
         eda = dataframe[i, 1:]
@@ -222,30 +241,30 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
 
         peaks, amps, onsets = find_phasic_eda_peaks(eda_phasic)
         # EDA
-        meanEda = np.mean(eda)
-        stdEda = np.std(eda)
-        kurtEda = scipy.stats.kurtosis(eda)
-        skewEda = scipy.stats.skew(eda)
+        meanEda = np.mean(eda)  # one
+        stdEda = np.std(eda)  # one
+        kurtEda = scipy.stats.kurtosis(eda)  # one
+        skewEda = scipy.stats.skew(eda)  # one
 
-        meanDerivative = np.mean(derivative)
+        meanDerivative = np.mean(derivative)  # one
         negativeDerivative = [i for i in derivative if i < 0]
-        meanNegativeDerivative = np.mean(negativeDerivative)
+        meanNegativeDerivative = np.mean(negativeDerivative)  # one
 
-        activity = np.sum((eda - np.mean(eda)) ** 2)
-        mobility = np.sqrt(np.var(derivative) / np.var(eda))
-        complexity = np.sqrt(np.var(secondDerivative) / np.var(derivative)) / mobility
+        activity = np.sum((eda - np.mean(eda)) ** 2)  # one
+        mobility = np.sqrt(np.var(derivative) / np.var(eda))  # one
+        complexity = np.sqrt(np.var(secondDerivative) / np.var(derivative)) / mobility  # one
 
         # Phasic
         riseTime = (peaks.squeeze() - onsets) / fs
-        peaksCount = peaks.shape[0]
-        meanPeakAmplitude = np.mean(amps)
-        meanRiseTime = np.mean(riseTime)
-        sumPeakAmplitude = np.sum(amps)
-        sumRiseTime = np.sum(riseTime)
+        peaksCount = peaks.shape[0]  # one
+        meanPeakAmplitude = np.mean(amps)  # one
+        meanRiseTime = np.mean(riseTime)  # one
+        sumPeakAmplitude = np.sum(amps)  # one
+        sumRiseTime = np.sum(riseTime)  # one
 
         # Frequency
-        sma = np.sum(np.abs(eda))
-        energy = np.sum(np.abs(eda) ** 2)
+        sma = np.sum(np.abs(eda))  # one
+        energy = np.sum(np.abs(eda) ** 2)  # one
         powerRange = fh[xh < 1]
         bandPowerIdx, _ = find_peaks(powerRange, height=0.01)
         matrix = np.array([powerRange[bandPowerIdx], bandPowerIdx])
@@ -258,65 +277,86 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
         bandPower = sortedFh[:5]
         # minSpectralPower = np.min(bandPower)
         # maxSpectralPower = np.max(bandPower)
-        varSpectralPower = np.var(bandPower)
+        varSpectralPower = np.var(bandPower)  # one (np.float)
 
         # DWT Wavelets
         levels = 4
         dwav = pywt.Wavelet('db3')
         dwtCoeffs = pywt.wavedec(eda_clean, wavelet=dwav, level=levels)
         detailedCoeff = dwtCoeffs[1:]
-        energyWavelet = np.array([Energy(detailedCoeff, i) for i in range(levels)])
-        totalEnergyWavelet = np.sum(energyWavelet)
-        distributionEnergy = np.array([100 * energyWavelet[i] / totalEnergyWavelet for i in range(levels)])
-        entropyWavelet = np.array([Entropy(energyWavelet[i]) for i in range(levels)])
+        energyWavelet = np.array([Energy(detailedCoeff, i) for i in range(levels)])  # array len(levels)
+        totalEnergyWavelet = np.sum(energyWavelet)  # one
+        distributionEnergy = np.array(
+            [100 * energyWavelet[i] / totalEnergyWavelet for i in range(levels)])  # array len(levels)
+        entropyWavelet = np.array([Entropy(energyWavelet[i]) for i in range(levels)])  # array len(levels)
 
         # MFCC
-        mfccs = feature.mfcc(eda, sr=fs, n_mfcc=20)
-        meanMFCCS = np.mean(mfccs, axis=-1)
-        stdMFCCS = np.std(mfccs, axis=-1)
-        medianMFCCS = np.median(mfccs, axis=-1)
-        kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)
-        skewMFCCS = scipy.stats.skew(mfccs, axis=-1)
+        n_mfcc = 20
+        mfccs = feature.mfcc(eda, sr=fs, n_mfcc=n_mfcc)
+        meanMFCCS = np.mean(mfccs, axis=-1)  # 20
+
+        stdMFCCS = np.std(mfccs, axis=-1)  # 20
+
+        medianMFCCS = np.median(mfccs, axis=-1)  # 20
+
+        kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)  # 20
+
+        skewMFCCS = scipy.stats.skew(mfccs, axis=-1)  # 20
+
+        # create columns dynamically for the ones that returns more stuff
+        # be careful if you modify this, the features MUST be in the right order
+        for k in range(levels):
+            features_df[f'energyWavelet_{k}'] = None
+            features_df[f'distributionEnergy_{k}'] = None
+            features_df[f'entropyWavelet_{k}'] = None
+
+        for k in range(n_mfcc):
+            features_df[f'meanMFCCS_{k}'] = None
+            features_df[f'stdMFCCS_{k}'] = None
+            features_df[f'medianMFCCS_{k}'] = None
+            features_df[f'kurtMFCCS_{k}'] = None
+            features_df[f'skewMFCCS_{k}'] = None
+
+        features_df.drop(features_df.index, inplace=True)  # dropping the temporary None values I added to create
+        # the columns
+
+        what_to_stack = (meanEda, stdEda, kurtEda, skewEda, meanDerivative,
+                         meanNegativeDerivative, activity, mobility, complexity,
+                         peaksCount, meanPeakAmplitude, meanRiseTime,
+                         sumPeakAmplitude, sumRiseTime, sma, energy,
+                         varSpectralPower, totalEnergyWavelet, energyWavelet,
+                         distributionEnergy, entropyWavelet, meanMFCCS, stdMFCCS,
+                         medianMFCCS, kurtMFCCS, skewMFCCS)
 
         if i == 0:
-            eda_features = np.hstack((meanEda, stdEda, kurtEda, skewEda, meanDerivative,
-                                      meanNegativeDerivative, activity, mobility, complexity,
-                                      peaksCount, meanPeakAmplitude, meanRiseTime,
-                                      sumPeakAmplitude, sumRiseTime, sma, energy,
-                                      varSpectralPower, energyWavelet, totalEnergyWavelet,
-                                      distributionEnergy, entropyWavelet, meanMFCCS, stdMFCCS,
-                                      medianMFCCS, kurtMFCCS, skewMFCCS))
+            eda_features = np.hstack(what_to_stack)
+            features_df.loc[i] = eda_features
         else:
-            temp = np.hstack((meanEda, stdEda, kurtEda, skewEda, meanDerivative,
-                              meanNegativeDerivative, activity, mobility, complexity,
-                              peaksCount, meanPeakAmplitude, meanRiseTime,
-                              sumPeakAmplitude, sumRiseTime, sma, energy,
-                              varSpectralPower, energyWavelet, totalEnergyWavelet,
-                              distributionEnergy, entropyWavelet, meanMFCCS, stdMFCCS,
-                              medianMFCCS, kurtMFCCS, skewMFCCS))
-            eda_features = np.vstack((eda_features, temp))
+            temp = np.hstack(what_to_stack)
+            features_df.loc[i] = temp
 
-    return eda_features
+    # now it returns a pd Dataframe
+    return features_df
 
 
 def extract_emg_featues(dataframe, fs):
-    features_df = pd.DataFrame(columns=['rmse', 
-                                    'mav',
-                                    'var',
-                                    'energy',
-                                    'mnf',
-                                    'mdf',
-                                    'zc',
-                                    'fr',
-                                    'mav_arr_0',
-                                    'mav_arr_1',
-                                    'mav_arr_2',
-                                    'mav_arr_3',
-                                    'std_0',
-                                    'std_1',
-                                    'std_2',
-                                    'std_3',
-                                   ])
+    features_df = pd.DataFrame(columns=['rmse',
+                                        'mav',
+                                        'var',
+                                        'energy',
+                                        'mnf',
+                                        'mdf',
+                                        'zc',
+                                        'fr',
+                                        'mav_arr_0',
+                                        'mav_arr_1',
+                                        'mav_arr_2',
+                                        'mav_arr_3',
+                                        'std_0',
+                                        'std_1',
+                                        'std_2',
+                                        'std_3',
+                                        ])
     for i in tqdm(range(0, dataframe.shape[0])):
         emg = dataframe[i, 1:]
         emg = nk.emg_clean(emg, sampling_rate=fs)
@@ -359,14 +399,11 @@ def extract_emg_featues(dataframe, fs):
                          std[2],
                          std[3])
 
-
         if i == 0:
             emg_features = np.hstack(what_to_stack)
             features_df.loc[i] = emg_features
         else:
             temp = np.hstack(what_to_stack)
-            
-#             emg_features = np.vstack((emg_features, temp))
             features_df.loc[i] = temp
 
     # now it returns a pd Dataframe
@@ -388,7 +425,7 @@ def extract_plux_data_basic(load_path):
         mean = np.mean(signals_raw)
         mean[0] = 0
         std[0] = 1
-        signals_norm = (signals_raw - mean)/std
+        signals_norm = (signals_raw - mean) / std
         data_dict.update({file: signals_norm})
 
     return data_dict, fs
@@ -396,7 +433,6 @@ def extract_plux_data_basic(load_path):
 
 # Extracts data from Plux acquisition, and splits them in windows of window_size_sec seconds
 def extract_plux_data_windowed(load_path, overlap_pct, window_size_sec, signal_name):
-
     filenames, dirs = import_filenames(load_path)
     filenames = [name for name in filenames if '.txt' in name]
     k = 0
@@ -409,7 +445,7 @@ def extract_plux_data_windowed(load_path, overlap_pct, window_size_sec, signal_n
         signal_raw = signals_raw[signal_name]
         std = np.std(signal_raw)
         mean = np.mean(signal_raw)
-        signal_norm = (signal_raw - mean)/std
+        signal_norm = (signal_raw - mean) / std
         windowed_signal = make_window(signal_norm.values, fs, overlap_pct, window_size_sec)
         key = np.repeat(np.array([k]), windowed_signal.shape[0], axis=0)
         key = np.expand_dims(key, axis=1)
@@ -418,6 +454,7 @@ def extract_plux_data_windowed(load_path, overlap_pct, window_size_sec, signal_n
         k = k + 1
 
     return final_set[1:, :]
+
 
 def find_phasic_eda_peaks(eda_phasic, percent=0.05):
     derivative = np.gradient(eda_phasic)
