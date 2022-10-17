@@ -233,16 +233,24 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
 
     # create columns dynamically for the ones that returns more stuff
     # be careful if you modify this, the features MUST be in the right order
+
+    # have to do like this because it saves the data sequentially, same for below
     for k in range(levels):
         features_df[f'energyWavelet_{k}'] = None
+    for k in range(levels):
         features_df[f'distributionEnergy_{k}'] = None
+    for k in range(levels):
         features_df[f'entropyWavelet_{k}'] = None
 
     for k in range(n_mfcc):
         features_df[f'meanMFCCS_{k}'] = None
+    for k in range(n_mfcc):
         features_df[f'stdMFCCS_{k}'] = None
+    for k in range(n_mfcc):
         features_df[f'medianMFCCS_{k}'] = None
+    for k in range(n_mfcc):
         features_df[f'kurtMFCCS_{k}'] = None
+    for k in range(n_mfcc):
         features_df[f'skewMFCCS_{k}'] = None
 
     features_df.drop(features_df.index, inplace=True)  # dropping the temporary None values I added to create
