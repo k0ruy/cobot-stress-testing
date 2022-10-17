@@ -228,6 +228,26 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
                                         'totalEnergyWavelet'
                                         ])  # add long dicts
 
+    levels = 4
+    n_mfcc = 20
+
+    # create columns dynamically for the ones that returns more stuff
+    # be careful if you modify this, the features MUST be in the right order
+    for k in range(levels):
+        features_df[f'energyWavelet_{k}'] = None
+        features_df[f'distributionEnergy_{k}'] = None
+        features_df[f'entropyWavelet_{k}'] = None
+
+    for k in range(n_mfcc):
+        features_df[f'meanMFCCS_{k}'] = None
+        features_df[f'stdMFCCS_{k}'] = None
+        features_df[f'medianMFCCS_{k}'] = None
+        features_df[f'kurtMFCCS_{k}'] = None
+        features_df[f'skewMFCCS_{k}'] = None
+
+    features_df.drop(features_df.index, inplace=True)  # dropping the temporary None values I added to create
+    # the columns
+
     for i in tqdm(range(0, dataframe.shape[0])):
 
         eda = dataframe[i, 1:]
@@ -280,7 +300,6 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
         varSpectralPower = np.var(bandPower)  # one (np.float)
 
         # DWT Wavelets
-        levels = 4
         dwav = pywt.Wavelet('db3')
         dwtCoeffs = pywt.wavedec(eda_clean, wavelet=dwav, level=levels)
         detailedCoeff = dwtCoeffs[1:]
@@ -291,34 +310,12 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
         entropyWavelet = np.array([Entropy(energyWavelet[i]) for i in range(levels)])  # array len(levels)
 
         # MFCC
-        n_mfcc = 20
         mfccs = feature.mfcc(eda, sr=fs, n_mfcc=n_mfcc)
         meanMFCCS = np.mean(mfccs, axis=-1)  # 20
-
         stdMFCCS = np.std(mfccs, axis=-1)  # 20
-
         medianMFCCS = np.median(mfccs, axis=-1)  # 20
-
         kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)  # 20
-
         skewMFCCS = scipy.stats.skew(mfccs, axis=-1)  # 20
-
-        # create columns dynamically for the ones that returns more stuff
-        # be careful if you modify this, the features MUST be in the right order
-        for k in range(levels):
-            features_df[f'energyWavelet_{k}'] = None
-            features_df[f'distributionEnergy_{k}'] = None
-            features_df[f'entropyWavelet_{k}'] = None
-
-        for k in range(n_mfcc):
-            features_df[f'meanMFCCS_{k}'] = None
-            features_df[f'stdMFCCS_{k}'] = None
-            features_df[f'medianMFCCS_{k}'] = None
-            features_df[f'kurtMFCCS_{k}'] = None
-            features_df[f'skewMFCCS_{k}'] = None
-
-        features_df.drop(features_df.index, inplace=True)  # dropping the temporary None values I added to create
-        # the columns
 
         what_to_stack = (meanEda, stdEda, kurtEda, skewEda, meanDerivative,
                          meanNegativeDerivative, activity, mobility, complexity,
