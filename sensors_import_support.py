@@ -10,6 +10,10 @@ import pywt
 import scipy
 from librosa import feature
 import pyhrv
+import warnings
+
+# suppress warnings
+warnings.filterwarnings("ignore")
 
 
 def import_opensignals(filename):
