@@ -91,8 +91,9 @@ def make_window(signal, fs, overlap, window_size_sec):
     return segmented[1:]
 
 
-def extract_time_and_freq_hrv_features(dataframe, fs):
-    features_df = pd.DataFrame(columns=['HR_Mean',
+def extract_time_and_freq_hrv_features(dataframe, fs, patient_id):
+    features_df = pd.DataFrame(columns=['patient',
+                                        'HR_Mean',
                                         'QRS_Mean',
                                         'QR_Mean',
                                         'RS_Mean',
@@ -185,7 +186,8 @@ def extract_time_and_freq_hrv_features(dataframe, fs):
         mean_SS_time = np.nanmean(delta_SS_time)
         mean_TT_time = np.nanmean(delta_TT_time)
 
-        temp = np.hstack((hr_mean,
+        temp = np.hstack((patient_id,
+                          hr_mean,
                           mean_QRS_duration,
                           mean_QR_duration,
                           mean_RS_duration,
@@ -211,8 +213,9 @@ def extract_time_and_freq_hrv_features(dataframe, fs):
     return features_df
 
 
-def extract_eda_time_and_frequency_features(dataframe, fs, window):
-    features_df = pd.DataFrame(columns=['meanEda',
+def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id):
+    features_df = pd.DataFrame(columns=['patient',
+                                        'meanEda',
                                         'stdEda',
                                         'kurtEda',
                                         'skewEda',
@@ -261,6 +264,9 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
     # the columns
 
     for i in tqdm(range(0, dataframe.shape[0])):
+
+        patient_id = None
+        print(dataframe)
 
         eda = dataframe[i, 1:]
         m, wd, eda_clean = process_statistical(eda, use_scipy=True, sample_rate=fs, new_sample_rate=fs,
@@ -330,7 +336,7 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
         kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)  # n_mfcc
         skewMFCCS = scipy.stats.skew(mfccs, axis=-1)  # n_mfcc
 
-        what_to_stack = (meanEda, stdEda, kurtEda, skewEda, meanDerivative,
+        what_to_stack = (patient_id, meanEda, stdEda, kurtEda, skewEda, meanDerivative,
                          meanNegativeDerivative, activity, mobility, complexity,
                          peaksCount, meanPeakAmplitude, meanRiseTime,
                          sumPeakAmplitude, sumRiseTime, sma, energy,
@@ -345,8 +351,9 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window):
     return features_df
 
 
-def extract_emg_featues(dataframe, fs):
-    features_df = pd.DataFrame(columns=['rmse',
+def extract_emg_featues(dataframe, fs, patient_id):
+    features_df = pd.DataFrame(columns=['patient',
+                                        'rmse',
                                         'mav',
                                         'var',
                                         'energy',
@@ -388,7 +395,8 @@ def extract_emg_featues(dataframe, fs):
         std = np.array([Std(detailedCoeff, mav_arr, i) for i in range(levels)])
 
         # added this to clean a bit
-        what_to_stack = (rmse,
+        what_to_stack = (patient_id,
+                         rmse,
                          mav,
                          var,
                          energy,

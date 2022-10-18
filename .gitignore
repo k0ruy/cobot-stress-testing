@@ -16,6 +16,7 @@ signals_example.txt
 questionnaires.pkl
 *.npy
 temp/
+Data Cobot Experiment/
 
 
 # Distribution / packaging
