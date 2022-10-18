@@ -2,6 +2,7 @@
 
 # Libraries:
 import os
+import shutil
 import zipfile
 from pathlib import Path
 import glob
@@ -58,6 +59,7 @@ def delete_unnecessary_files(data_dir: Path) -> None:
     :return: None
     """
     rmtree(data_dir / "Data Cobot Experiment")
+    os.remove(data_dir / 'rest' / '06-05-30_09-41-40_rest.txt')
 
 
 def main(data_dir: Path, zip_f: Path) -> None:
