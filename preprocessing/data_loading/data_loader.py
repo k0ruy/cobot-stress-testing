@@ -84,6 +84,6 @@ def main(data_dir: Path, zip_f: Path) -> None:
 
 # Driver:
 if __name__ == "__main__":
-    data_store = Path("..", "experiments")
-    zip_file = Path("..", "Data Cobot Experiment.zip")
+    data_store = Path("../..", "experiments")
+    zip_file = Path("../..", "Data Cobot Experiment.zip")
     main(data_store, zip_file)
