@@ -19,7 +19,7 @@ if __name__ == '__main__':
         stress_task.rename(columns={'Stress': 'avg_stress'}, inplace=True)
 
         # save to csv in the label folder:
-        stress_task.to_csv(Path('..', 'label', 'stress_by_task.csv'))
+        stress.to_csv(Path('..', 'label', 'stress_by_task.csv'))
 
         # rename the stress column to AvgStress:
         stress.rename(columns={'Stress': 'AvgStress'}, inplace=True)
