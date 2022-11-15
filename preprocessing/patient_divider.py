@@ -4,8 +4,7 @@ import os
 
 
 def splitter(data_dir: Path):
-    files = filter(os.path.isfile, os.listdir(data_dir))
-    for file in files:
+    for file in os.listdir(data_dir):
         patient_id = file.split('-')[0]
         curr_dirname = f'patient-{patient_id}'
 
@@ -18,14 +17,13 @@ def splitter(data_dir: Path):
 def add_dir_to_saved_data(data_dir: Path):
     for file in os.listdir(data_dir):
 
-        if os.path.exists(Path('..', 'saved_data', str(file))):
-            shutil.rmtree(r'../saved_data/' + str(file))  # I know I didnt use Path()
-        os.makedirs(Path('..', 'saved_data', str(file)))
+        if os.path.exists(Path('..', 'saved_data_test', str(file))):
+            shutil.rmtree(r'../saved_data_test/' + str(file))  # I know I didnt use Path()
+        os.makedirs(Path('..', 'saved_data_test', str(file)))
 
 
 def file_mover(data_dir: Path):
-    files = filter(os.path.isfile, os.listdir(data_dir))
-    for file in files:
+    for file in os.listdir(data_dir):
         patient_id = file.split('-')[0]
         curr_dirname = f'patient-{patient_id}'
 
