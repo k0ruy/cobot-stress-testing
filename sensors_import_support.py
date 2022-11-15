@@ -265,9 +265,6 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id):
 
     for i in tqdm(range(0, dataframe.shape[0])):
 
-        patient_id = None
-        print(dataframe)
-
         eda = dataframe[i, 1:]
         m, wd, eda_clean = process_statistical(eda, use_scipy=True, sample_rate=fs, new_sample_rate=fs,
                                                segment_width=window, segment_overlap=0)

@@ -4,7 +4,8 @@ import os
 
 
 def splitter(data_dir: Path):
-    for file in os.listdir(data_dir):
+    files = filter(os.path.isfile, os.listdir(data_dir))
+    for file in files:
         patient_id = file.split('-')[0]
         curr_dirname = f'patient-{patient_id}'
 
@@ -23,7 +24,8 @@ def add_dir_to_saved_data(data_dir: Path):
 
 
 def file_mover(data_dir: Path):
-    for file in os.listdir(data_dir):
+    files = filter(os.path.isfile, os.listdir(data_dir))
+    for file in files:
         patient_id = file.split('-')[0]
         curr_dirname = f'patient-{patient_id}'
 
