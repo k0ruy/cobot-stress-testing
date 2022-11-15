@@ -62,6 +62,51 @@ def delete_unnecessary_files(data_dir: Path) -> None:
     os.remove(data_dir / 'rest' / '06-05-30_09-41-40_rest.txt')
 
 
+def splitter(data_dir: Path):
+    """
+    Split the data into patient folders.
+    :param data_dir: directory to split the data into.
+    :return: directory with patient folders.
+    """
+    for file in os.listdir(data_dir):
+        patient_id = file.split('-')[0]
+        curr_dirname = f'patient-{patient_id}'
+
+        if os.path.exists(Path(data_dir, curr_dirname)):
+            shutil.rmtree(rf'{data_dir}' + '/' + curr_dirname)
+        if curr_dirname != 'patient-08_2022':
+            os.makedirs(Path(data_dir, curr_dirname))
+
+
+def add_dir_to_saved_data(data_dir: Path):
+    """
+    Add the directory to the saved data.
+    :param data_dir: directory to add the directory to.
+    :return: None, saves the data.
+    """
+    for file in os.listdir(data_dir):
+
+        if os.path.exists(Path('..','..', 'saved_data', str(file))):
+            shutil.rmtree(r'../../saved_data/' + str(file))  # I know I didnt use Path()
+        os.makedirs(Path('..', '..', 'saved_data', str(file)))
+
+
+def file_mover(data_dir: Path):
+    """
+    Move the files to the correct folder.
+    :param data_dir: the directory to move the files to.
+    :return: None, moves the files.
+    """
+    for file in os.listdir(data_dir):
+        patient_id = file.split('-')[0]
+        curr_dirname = f'patient-{patient_id}'
+
+        if file.startswith('08_2022'):
+            shutil.move(Path(data_dir, str(file)), Path(data_dir, 'patient-08'))
+        elif file.endswith('.txt'):
+            shutil.move(Path(data_dir, str(file)), Path(data_dir, curr_dirname, str(file)))
+
+
 def main(data_dir: Path, zip_f: Path) -> None:
     """
     Main function to run the script.
@@ -82,6 +127,12 @@ def main(data_dir: Path, zip_f: Path) -> None:
 
     # clean up the directory:
     delete_unnecessary_files(data_dir)
+
+    # split the data into patient folders:
+    for exp in os.listdir(Path("..", "..", "experiments")):
+        splitter(Path("..", "..", "experiments", str(exp)))
+        file_mover(Path("..", "..", "experiments", str(exp)))
+        add_dir_to_saved_data(Path("..", "..", "experiments", str(exp)))
 
 
 # Driver:
