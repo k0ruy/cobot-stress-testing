@@ -102,9 +102,13 @@ def file_mover(data_dir: Path):
         curr_dirname = f'patient-{patient_id}'
 
         if file.startswith('08_2022'):
-            shutil.move(Path(data_dir, str(file)), Path(data_dir, 'patient-08'))
+            src = data_dir.joinpath(file)
+            dest = data_dir.joinpath('patient-08')
+            shutil.move(str(src), str(dest))
         elif file.endswith('.txt'):
-            shutil.move(Path(data_dir, str(file)), Path(data_dir, curr_dirname, str(file)))
+            src = data_dir.joinpath(file)
+            dest = data_dir.joinpath(curr_dirname)
+            shutil.move(str(src), str(dest))
 
 
 def main(data_dir: Path, zip_f: Path) -> None:
