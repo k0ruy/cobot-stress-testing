@@ -5,12 +5,13 @@ import pickle
 from pathlib import Path
 import pandas as pd
 
+from config import QUESTIONNAIRES
 
 # Driver:
 
 if __name__ == '__main__':
     # Load the questionnaires pickle:
-    with open(Path('..', "questionnaires.pkl"), "rb") as f:
+    with open(QUESTIONNAIRES, "rb") as f:
         subject_data = pickle.load(f)
 
         # remove the row with index 73 as it is the row with the file 06-05-30_10-53-13_manual:
@@ -25,7 +26,7 @@ if __name__ == '__main__':
         # concatenate the two dataframes:
         subject_data = pd.concat([subject_data, subject_11], axis=0)
 
-    with open(Path('..', 'questionnaires.pkl'), 'wb') as f:
+    with open(Path(QUESTIONNAIRES), 'wb') as f:
         pickle.dump(subject_data, f)
 
 

@@ -7,6 +7,7 @@ import zipfile
 from pathlib import Path
 import glob
 from shutil import rmtree
+from config import EXPERIMENTS, ZIP_FILE
 
 
 # Function to unzip the dataset:
@@ -59,7 +60,10 @@ def delete_unnecessary_files(data_dir: Path) -> None:
     :return: None
     """
     rmtree(data_dir / "Data Cobot Experiment")
+    # corrupted file:
+    # TODO: @Amos, Andrea, Chri., verify.
     os.remove(data_dir / 'rest' / '06-05-30_09-41-40_rest.txt')
+    os.remove(data_dir / 'manual' / '06-05-30_10-53-13_manual.txt')
 
 
 def splitter(data_dir: Path):
@@ -86,8 +90,8 @@ def add_dir_to_saved_data(data_dir: Path):
     """
     for file in os.listdir(data_dir):
 
-        if os.path.exists(Path('..','..', 'saved_data', str(file))):
-            shutil.rmtree(r'../../saved_data/' + str(file))  # I know I didnt use Path()
+        if os.path.exists(Path('..', '..', 'saved_data', str(file))):
+            shutil.rmtree(r'../../saved_data/' + str(file))
         os.makedirs(Path('..', '..', 'saved_data', str(file)))
 
 
@@ -111,13 +115,15 @@ def file_mover(data_dir: Path):
             shutil.move(str(src), str(dest))
 
 
-def main(data_dir: Path, zip_f: Path) -> None:
+def main() -> None:
     """
     Main function to run the script.
-    @param data_dir: The directory to unzip the file into.
-    @param zip_f: The zipped file to unzip.
-    :return: None
+    :return: None. Executes the main functions.
     """
+    # paths to the data and the zip file:
+    data_dir: Path = Path(EXPERIMENTS)
+    zip_f: Path = Path(ZIP_FILE)
+
     # make sure the directory is clean and it exists:
     if os.path.exists(data_dir):
         rmtree(data_dir)
@@ -133,14 +139,12 @@ def main(data_dir: Path, zip_f: Path) -> None:
     delete_unnecessary_files(data_dir)
 
     # split the data into patient folders:
-    for exp in os.listdir(Path("..", "..", "experiments")):
-        splitter(Path("..", "..", "experiments", str(exp)))
-        file_mover(Path("..", "..", "experiments", str(exp)))
-        add_dir_to_saved_data(Path("..", "..", "experiments", str(exp)))
+    for exp in os.listdir(data_dir):
+        splitter(Path(data_dir, str(exp)))
+        file_mover(Path(data_dir, str(exp)))
+        add_dir_to_saved_data(Path(data_dir, str(exp)))
 
 
 # Driver:
 if __name__ == "__main__":
-    data_store = Path("..", "..", "experiments")
-    zip_file = Path("..", "..", "Data Cobot Experiment.zip")
-    main(data_store, zip_file)
+    main()

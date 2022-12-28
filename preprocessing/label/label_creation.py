@@ -5,10 +5,15 @@ from pathlib import Path
 import pandas as pd
 import tabulate
 
-# Driver:
-if __name__ == '__main__':
-    # Load the questionnaires pickle:
-    with open(Path('..', '..', "questionnaires.pkl"), "rb") as f:
+from config import QUESTIONNAIRES
+
+
+def main() -> None:
+    """
+    Extract the stress labels from the questionnaires pickle file.
+    :return: None. Saves the stress labels in a csv file.
+    """
+    with open(QUESTIONNAIRES, "rb") as f:
         subject_data = pickle.load(f)
 
         # group by ID and get the mean of the stress column:
@@ -57,6 +62,9 @@ if __name__ == '__main__':
         stress_diff_df.to_csv(Path('stress_diff.csv'), index=False)
 
 
+# Driver code:
+if __name__ == '__main__':
+    main()
 
 
 
