@@ -91,8 +91,9 @@ def make_window(signal, fs, overlap, window_size_sec):
     return segmented[1:]
 
 
-def extract_time_and_freq_hrv_features(dataframe, fs, patient_id):
-    features_df = pd.DataFrame(columns=['patient',
+def extract_time_and_freq_hrv_features(dataframe, fs, patient_id, filename):
+    features_df = pd.DataFrame(columns=['filename',
+                                        'patient',
                                         'HR_Mean',
                                         'QRS_Mean',
                                         'QR_Mean',
@@ -186,7 +187,7 @@ def extract_time_and_freq_hrv_features(dataframe, fs, patient_id):
         mean_SS_time = np.nanmean(delta_SS_time)
         mean_TT_time = np.nanmean(delta_TT_time)
 
-        temp = np.hstack((patient_id,
+        temp = np.hstack((filename, patient_id,
                           hr_mean,
                           mean_QRS_duration,
                           mean_QR_duration,
@@ -213,8 +214,9 @@ def extract_time_and_freq_hrv_features(dataframe, fs, patient_id):
     return features_df
 
 
-def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id):
-    features_df = pd.DataFrame(columns=['patient',
+def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id, filename):
+    features_df = pd.DataFrame(columns=['filename',
+                                        'patient',
                                         'meanEda',
                                         'stdEda',
                                         'kurtEda',
@@ -333,7 +335,7 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id):
         kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)  # n_mfcc
         skewMFCCS = scipy.stats.skew(mfccs, axis=-1)  # n_mfcc
 
-        what_to_stack = (patient_id, meanEda, stdEda, kurtEda, skewEda, meanDerivative,
+        what_to_stack = (filename, patient_id, meanEda, stdEda, kurtEda, skewEda, meanDerivative,
                          meanNegativeDerivative, activity, mobility, complexity,
                          peaksCount, meanPeakAmplitude, meanRiseTime,
                          sumPeakAmplitude, sumRiseTime, sma, energy,
@@ -348,8 +350,9 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id):
     return features_df
 
 
-def extract_emg_featues(dataframe, fs, patient_id):
-    features_df = pd.DataFrame(columns=['patient',
+def extract_emg_features(dataframe, fs, patient_id, filenames):
+    features_df = pd.DataFrame(columns=['filename',
+                                        'patient',
                                         'rmse',
                                         'mav',
                                         'var',
@@ -367,7 +370,7 @@ def extract_emg_featues(dataframe, fs, patient_id):
                                         'std_2',
                                         'std_3',
                                         ])
-    for i in tqdm(range(0, dataframe.shape[0])):
+    for i, filename in zip(tqdm(range(0, dataframe.shape[0])), filenames):
         emg = dataframe[i, 1:]
         emg = nk.emg_clean(emg, sampling_rate=fs)
         fh, xh = spectrum(emg, fs)
@@ -392,7 +395,7 @@ def extract_emg_featues(dataframe, fs, patient_id):
         std = np.array([Std(detailedCoeff, mav_arr, i) for i in range(levels)])
 
         # added this to clean a bit
-        what_to_stack = (patient_id,
+        what_to_stack = (filename, patient_id,
                          rmse,
                          mav,
                          var,
