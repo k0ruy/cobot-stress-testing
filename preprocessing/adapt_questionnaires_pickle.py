@@ -20,6 +20,7 @@ def main() -> None:
     with open(QUESTIONNAIRES, "rb") as f:
         questionnaires = pickle.load(f)
 
+        # Visual inspection of the data:
         print(questionnaires.head(2000))
 
         q_c = questionnaires.copy()
@@ -93,6 +94,7 @@ def main() -> None:
         # sort by ID, Task and Number:
         q_c = q_c.sort_values(by=['ID', 'Task', 'Number'])
 
+        # Visual inspection of the cleaned questionnaires:
         print(q_c.head(2000))
 
 

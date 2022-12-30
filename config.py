@@ -1,11 +1,11 @@
-# Project configuration file containg all the paths to the data and the saved data.
+# Project configuration file containing all the paths to the data and the saved data.
 # Path: config.py
 from pathlib import Path
 
 # Project folders
 ROOT = Path(__file__).parent
 
-# Zipped datset:
+# Zipped dataset:
 ZIP_FILE = Path(ROOT, 'Data Cobot Experiment.zip')
 
 # Data folders
