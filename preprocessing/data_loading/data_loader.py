@@ -7,7 +7,7 @@ import zipfile
 from pathlib import Path
 import glob
 from shutil import rmtree
-from config import EXPERIMENTS, ZIP_FILE
+from config import EXPERIMENTS, ZIP_FILE, SAVED_DATA
 
 
 # Function to unzip the dataset:
@@ -90,9 +90,9 @@ def add_dir_to_saved_data(data_dir: Path):
     """
     for file in os.listdir(data_dir):
 
-        if os.path.exists(Path('..', '..', 'saved_data', str(file))):
-            shutil.rmtree(r'../../saved_data/' + str(file))
-        os.makedirs(Path('..', '..', 'saved_data', str(file)))
+        if os.path.exists(Path(SAVED_DATA, str(file))):
+            shutil.rmtree(str(SAVED_DATA) + str(file))
+        os.makedirs(Path(SAVED_DATA, str(file)))
 
 
 def file_mover(data_dir: Path):
