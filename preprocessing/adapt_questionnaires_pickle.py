@@ -5,28 +5,48 @@ import pickle
 from pathlib import Path
 import pandas as pd
 
-from config import QUESTIONNAIRES
+from config import QUESTIONNAIRES, SAVED_DATA
 
 # Driver:
 
 if __name__ == '__main__':
     # Load the questionnaires pickle:
     with open(QUESTIONNAIRES, "rb") as f:
-        subject_data = pickle.load(f)
+        questionnaires = pickle.load(f)
+        q_c = questionnaires.copy()
 
         # remove the row with index 73 as it is the row with the file 06-05-30_10-53-13_manual:
-        subject_data = subject_data.drop(subject_data.iloc[73].name)
+        q_c = q_c.drop(q_c.iloc[73].name)
 
         # duplicate all rows with user ID 10:
-        subject_11 = subject_data[subject_data['ID'] == 10].copy()
+        q_c_11 = q_c[q_c['ID'] == 10].copy()
 
         # change the ID to 11:
-        subject_11['ID'] = 11
+        q_c_11['ID'] = 11
 
         # concatenate the two dataframes:
-        subject_data = pd.concat([subject_data, subject_11], axis=0)
+        q_c = pd.concat([q_c, q_c_11], axis=0)
 
-    with open(Path(QUESTIONNAIRES), 'wb') as f:
-        pickle.dump(subject_data, f)
+        # Drop number == 3 and Number == 5 where ID == 1 the task is MANUAL:
+        q_c = q_c.drop(q_c[(q_c['ID'] == 1) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 3) |
+                           (q_c['Number'] == 5)].index)
 
+        # Drop number == 7 where ID == 2 the task is MANUAL:
+        q_c = q_c.drop(q_c[(q_c['ID'] == 2) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 7)].index)
+
+        # Drop number == 3 where ID == 3 the task is MANUAL:
+        q_c = q_c.drop(q_c[(q_c['ID'] == 3) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 3)].index)
+        # Drop number == 11 where ID == 3 the task is COBOT:
+        q_c = q_c.drop(q_c[(q_c['ID'] == 3) & (q_c['Task'] == 'COBOT') & (q_c['Number'] == 11)].index)
+
+        # Drop number == 0 where ID == 7 the task is MANUAL:
+        q_c = q_c.drop(q_c[(q_c['ID'] == 7) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 0)].index)
+        # Drop number == 9 where ID == 7 the task is COBOT:
+        q_c = q_c.drop(q_c[(q_c['ID'] == 7) & (q_c['Task'] == 'COBOT') & (q_c['Number'] == 9)].index)
+
+        # Drop number == 5 where ID == 9 the task is MANUAL:
+        q_c = q_c.drop(q_c[(q_c['ID'] == 9) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 5)].index)
+
+        # save the cleaned questionnaires:
+        q_c.to_pickle(SAVED_DATA / "questionnaires_cleaned.pkl")
 
