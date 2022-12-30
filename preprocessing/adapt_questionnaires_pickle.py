@@ -3,14 +3,19 @@
 # Libraries:
 import pickle
 import pandas as pd
+from config import QUESTIONNAIRES, SAVED_DATA
+
 # remove the row limit in the console:
 pd.set_option('display.max_rows', None)
 
-from config import QUESTIONNAIRES, SAVED_DATA
 
-# Driver:
+def main() -> None:
+    """
+    Remove the row from file  06-05-30_10-53-13_manual from the pickle file.
+    Corrects the data based on slide 23 of professor Baraldo's project presentation.
+    :return: None. Saves the cleaned pickle file.
+    """
 
-if __name__ == '__main__':
     # Load the questionnaires pickle:
     with open(QUESTIONNAIRES, "rb") as f:
         questionnaires = pickle.load(f)
@@ -61,11 +66,10 @@ if __name__ == '__main__':
 
         # Drop number == 0 where ID == 7 the task is MANUAL:
         q_c = q_c.drop(q_c[(q_c['ID'] == 7) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 0)].index)
-        # TODO: this does not exist in the original questionnaire.
+        # TODO: this does not exist in the original questionnaire, bug in the slides or we should consider 0 as 1?
         # Shift the numbers of the files with ID == 7 and Task == MANUAL appropriately:
         # for i in range(1, 16):
             # q_c.loc[(q_c['ID'] == 7) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == i), 'Number'] = i - 1
-
 
         # Drop number == 9 where ID == 7 the task is COBOT:
         q_c = q_c.drop(q_c[(q_c['ID'] == 7) & (q_c['Task'] == 'COBOT') & (q_c['Number'] == 9)].index)
@@ -87,3 +91,7 @@ if __name__ == '__main__':
 
         print(q_c.head(2000))
 
+
+# Driver:
+if __name__ == '__main__':
+    main()
