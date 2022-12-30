@@ -83,6 +83,10 @@ def main() -> None:
         for i in range(6, 16):
             q_c.loc[(q_c['ID'] == 9) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == i), 'Number'] = i - 1
 
+        # Shift the numbers of the files with ID == 10 and Task == STROOP appropriately:
+        for i in range(3, 5):
+            q_c.loc[(q_c['ID'] == 10) & (q_c['Task'] == 'STROOP') & (q_c['Number'] == i), 'Number'] = i - 1
+
         # save the cleaned questionnaires:
         q_c.to_pickle(SAVED_DATA / "questionnaires_cleaned.pkl")
 
