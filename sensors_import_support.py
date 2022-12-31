@@ -8,7 +8,7 @@ from scipy.signal import find_peaks
 from scipy.fftpack import fft, ifft, fftfreq
 import pywt
 import scipy
-from librosa import feature
+# from librosa import feature
 import pyhrv
 import warnings
 
@@ -91,7 +91,7 @@ def make_window(signal, fs, overlap, window_size_sec):
     return segmented[1:]
 
 
-def extract_time_and_freq_hrv_features(dataframe, fs, patient_id, filename):
+def extract_time_and_freq_hrv_features(dataframe, fs, patient_id):
     features_df = pd.DataFrame(columns=['filename',
                                         'patient',
                                         'HR_Mean',
@@ -138,10 +138,9 @@ def extract_time_and_freq_hrv_features(dataframe, fs, patient_id, filename):
                                         'HF_Norm',
                                         'fft_ratio',
                                         'fft_total'])
-
     for i in tqdm(range(0, dataframe.shape[0])):
         # processed_ecg, _ = nk.process(dataframe[i,3:], sampling_rate=fs)
-        cleaned_ecg = nk.ecg_clean(dataframe[i, 1:], sampling_rate=fs, method='biosppy')
+        cleaned_ecg = nk.ecg_clean(dataframe[i, 2:].astype(float), sampling_rate=fs, method='biosppy')
         R_peaks, R_info = nk.ecg_peaks(cleaned_ecg, sampling_rate=fs)
 
         hrv_time = nk.hrv_time(R_peaks, sampling_rate=fs, show=False)
@@ -187,6 +186,8 @@ def extract_time_and_freq_hrv_features(dataframe, fs, patient_id, filename):
         mean_SS_time = np.nanmean(delta_SS_time)
         mean_TT_time = np.nanmean(delta_TT_time)
 
+        filename = dataframe[i, 1]
+
         temp = np.hstack((filename, patient_id,
                           hr_mean,
                           mean_QRS_duration,
@@ -209,12 +210,13 @@ def extract_time_and_freq_hrv_features(dataframe, fs, patient_id, filename):
                           hrv_freq["fft_norm"][1],
                           hrv_freq["fft_ratio"],
                           hrv_freq["fft_total"]))
+
         features_df.loc[i] = temp
 
     return features_df
 
 
-def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id, filename):
+def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id):
     features_df = pd.DataFrame(columns=['filename',
                                         'patient',
                                         'meanEda',
@@ -264,10 +266,9 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id, f
 
     features_df.drop(features_df.index, inplace=True)  # dropping the temporary None values I added to create
     # the columns
-
     for i in tqdm(range(0, dataframe.shape[0])):
 
-        eda = dataframe[i, 1:]
+        eda = dataframe[i, 2:].astype(float)
         m, wd, eda_clean = process_statistical(eda, use_scipy=True, sample_rate=fs, new_sample_rate=fs,
                                                segment_width=window, segment_overlap=0)
         eda_clean = eda_clean[0]
@@ -328,13 +329,14 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id, f
 
         # MFCC
         # n_mfcc = 20 already set before loop
-        mfccs = feature.mfcc(eda, sr=fs, n_mfcc=n_mfcc)
+        mfccs = feature.mfcc(y=eda, sr=fs, n_mfcc=n_mfcc)
         meanMFCCS = np.mean(mfccs, axis=-1)  # n_mfcc
         stdMFCCS = np.std(mfccs, axis=-1)  # n_mfcc
         medianMFCCS = np.median(mfccs, axis=-1)  # n_mfcc
         kurtMFCCS = scipy.stats.kurtosis(mfccs, axis=-1)  # n_mfcc
         skewMFCCS = scipy.stats.skew(mfccs, axis=-1)  # n_mfcc
 
+        filename = dataframe[i, 1]
         what_to_stack = (filename, patient_id, meanEda, stdEda, kurtEda, skewEda, meanDerivative,
                          meanNegativeDerivative, activity, mobility, complexity,
                          peaksCount, meanPeakAmplitude, meanRiseTime,
@@ -350,7 +352,7 @@ def extract_eda_time_and_frequency_features(dataframe, fs, window, patient_id, f
     return features_df
 
 
-def extract_emg_features(dataframe, fs, patient_id, filenames):
+def extract_emg_features(dataframe, fs, patient_id):
     features_df = pd.DataFrame(columns=['filename',
                                         'patient',
                                         'rmse',
@@ -370,8 +372,8 @@ def extract_emg_features(dataframe, fs, patient_id, filenames):
                                         'std_2',
                                         'std_3',
                                         ])
-    for i, filename in zip(tqdm(range(0, dataframe.shape[0])), filenames):
-        emg = dataframe[i, 1:]
+    for i in tqdm(range(0, dataframe.shape[0])):
+        emg = dataframe[i, 2:].astype(float)
         emg = nk.emg_clean(emg, sampling_rate=fs)
         fh, xh = spectrum(emg, fs)
         N = len(emg)
@@ -393,6 +395,8 @@ def extract_emg_features(dataframe, fs, patient_id, filenames):
         detailedCoeff = dwtCoeffs[1:]
         mav_arr = np.array([1 / len(detailedCoeff[i]) * np.sum(np.abs(detailedCoeff[i])) for i in range(levels)])
         std = np.array([Std(detailedCoeff, mav_arr, i) for i in range(levels)])
+
+        filename = dataframe[i, 1]
 
         # added this to clean a bit
         what_to_stack = (filename, patient_id,
@@ -446,20 +450,24 @@ def extract_plux_data_windowed(load_path, overlap_pct, window_size_sec, signal_n
     filenames, dirs = import_filenames(load_path)
     filenames = [name for name in filenames if '.txt' in name]
     k = 0
+
     for file in tqdm(filenames):
         filepath = os.path.join(load_path, file)
         signals_raw, fs = import_opensignals(filepath)
         if k == 0:
             window_size = window_size_sec * fs
-            final_set = np.zeros((1, window_size + 1))
+            final_set = np.zeros((1, window_size + 2))
         signal_raw = signals_raw[signal_name]
         std = np.std(signal_raw)
         mean = np.mean(signal_raw)
         signal_norm = (signal_raw - mean) / std
         windowed_signal = make_window(signal_norm.values, fs, overlap_pct, window_size_sec)
+        filename = np.repeat(np.array([file]), windowed_signal.shape[0], axis=0)
+        filename = np.expand_dims(filename, axis=1)
         key = np.repeat(np.array([k]), windowed_signal.shape[0], axis=0)
         key = np.expand_dims(key, axis=1)
-        signal_set = np.hstack((key, windowed_signal))
+        filename_set = np.hstack((key, filename))
+        signal_set = np.hstack((filename_set, windowed_signal))
         final_set = np.vstack((final_set, signal_set))
         k = k + 1
 
