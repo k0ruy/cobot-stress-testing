@@ -8,7 +8,7 @@ from scipy.signal import find_peaks
 from scipy.fftpack import fft, ifft, fftfreq
 import pywt
 import scipy
-# from librosa import feature
+from librosa import feature
 import pyhrv
 import warnings
 
