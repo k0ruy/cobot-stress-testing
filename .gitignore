@@ -6,10 +6,18 @@ __pycache__/
 # C extensions
 *.so
 
-# folders
-experiments/
+# folders and random files
+Data Cobot Experiment.zip/
 pyEDA/
+experiments/
 .ipynb_checkpoints/
+.idea/
+signals_example.txt
+questionnaires.pkl
+*.npy
+temp/
+Data Cobot Experiment/
+
 
 # Distribution / packaging
 .Python
@@ -132,3 +140,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/Data Cobot Experiment.zip
