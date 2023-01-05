@@ -1,4 +1,4 @@
-ID,Task,File_number,STAI_Total,Fatigue,Stress,Mental_Demand,Physical_Demand,Frustration,NASA_Total,PSS,NARS_S1,NARS_S2,NARS_S3,Age,Sex,Experience,File_name
+ID,Task,File_number,STAI_Total,Fatigue,Stress,Mental_Demand,Physical_Demand,Frustration,NASA_Total,PSS,NARS_S1,NARS_S2,NARS_S3,Age,Sex,Experience,filename
 10.0,MANUAL,1,29.0,1.0,8.0,2.0,2.0,2.0,34,14,10,17,10,37.0,1,2.0,10-05-30_16-15-24_manual.txt
 10.0,MANUAL,2,29.0,1.0,7.0,2.0,2.0,2.0,34,14,10,17,10,37.0,1,2.0,10-05-30_16-22-58_manual.txt
 10.0,MANUAL,3,33.0,1.0,9.0,2.0,3.0,1.0,31,14,10,17,10,37.0,1,2.0,10-05-30_16-31-30_manual.txt
