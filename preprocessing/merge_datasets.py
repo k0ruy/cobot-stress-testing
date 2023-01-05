@@ -18,14 +18,13 @@ def merge_all_patients_csv_files():
         for signal in signals:
             # Get all the csv files of the current task and signal:
             csv_files = list((SAVED_DATA.rglob(f'{signal}_{task}*.csv')))
-            print(csv_files)
 
             # Create a list of dataframes and concatenate them:
             dataframes = [pd.read_csv(csv_file) for csv_file in csv_files]
 
             df = pd.concat(dataframes)
             # Save the merged dataframe:
-            df.to_csv(SAVED_DATA / f'{signal}.csv', index=False)
+            df.to_csv(SAVED_DATA / f'{signal}_{task}.csv', index=False)
 
 
 if __name__ == '__main__':

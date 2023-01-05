@@ -47,7 +47,7 @@ def main():
 
     X_train, X_test, y_train, y_test = split_data(
         handle_missing_values(
-            load_data(Path(SAVED_DATA, "merged_cobot.csv"))
+            load_data(Path(SAVED_DATA, "ecg_cobot.csv"))
         )
     )
 
