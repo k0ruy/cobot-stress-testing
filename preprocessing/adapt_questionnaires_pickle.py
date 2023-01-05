@@ -91,6 +91,9 @@ def main() -> None:
         # save the cleaned questionnaires:
         q_c.to_pickle(SAVED_DATA / "questionnaires_cleaned.pkl")
 
+        # save the csv:
+        q_c.to_csv(SAVED_DATA / "questionnaires_cleaned.csv", index=False)
+
         # sort by ID, Task and Number:
         q_c = q_c.sort_values(by=['ID', 'Task', 'Number'])
 

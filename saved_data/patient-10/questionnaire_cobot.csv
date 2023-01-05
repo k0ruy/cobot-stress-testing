@@ -1,4 +1,4 @@
-ID,Task,File_number,STAI_Total,Fatigue,Stress,Mental_Demand,Physical_Demand,Frustration,NASA_Total,PSS,NARS_S1,NARS_S2,NARS_S3,Age,Sex,Experience,filename
+ID,Task,File_number,STAI_Total,Fatigue,Stress,Mental_Demand,Physical_Demand,Frustration,NASA_Total,PSS,NARS_S1,NARS_S2,NARS_S3,Age,Sex,Experience,File_name
 10.0,COBOT,1,27.0,1.0,6.0,3.0,2.0,2.0,30,14,10,17,10,37.0,1,2.0,10-06-07_09-30-59_cobot.txt
 10.0,COBOT,2,29.0,1.0,7.0,3.0,2.0,2.0,33,14,10,17,10,37.0,1,2.0,10-06-07_09-38-23_cobot.txt
 10.0,COBOT,3,28.0,2.0,9.0,4.0,3.0,2.0,40,14,10,17,10,37.0,1,2.0,10-06-07_09-45-55_cobot.txt
