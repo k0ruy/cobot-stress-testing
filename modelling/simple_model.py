@@ -27,7 +27,8 @@ def handle_missing_values(df):
     :param df: pandas dataframe
     :return: pandas dataframe
     """
-    return df.dropna()
+    df.dropna(axis=1, how='all', inplace=True)  # drop columns that have all nans
+    return df.dropna()  # drop rows that have stray nans
 
 
 def split_data(data):
@@ -37,7 +38,22 @@ def split_data(data):
     :param data: pandas dataframe
     :return: train and test sets
     """
-    X = data.drop(columns=["Stress"])
+    X = data.drop(columns=['filename',
+                           'Stress',
+                           'Experience',
+                           'NARS_S3',
+                           'NARS_S2',
+                           'NARS_S1',
+                           'PSS',
+                           'NASA_Total',
+                           'Frustration',
+                           'Physical_Demand',
+                           'Mental_Demand',
+                           'Fatigue',
+                           'STAI_Total',
+                           'File_number',
+                           'Task',
+                           'ID'])
     y = data["Stress"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_test, y_train, y_test
@@ -47,7 +63,7 @@ def main():
 
     X_train, X_test, y_train, y_test = split_data(
         handle_missing_values(
-            load_data(Path(SAVED_DATA, "ecg_cobot.csv"))
+            load_data(SAVED_DATA / "ecg_cobot.csv")
         )
     )
 
