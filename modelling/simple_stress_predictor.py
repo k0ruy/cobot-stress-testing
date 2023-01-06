@@ -89,20 +89,20 @@ def main():
         # concatenate x and y train and test sets for total data prediction
         X_train = pd.concat([X_train_ecg, X_train_eda, X_train_emg], axis=1)
         X_test = pd.concat([X_test_ecg, X_test_eda, X_test_emg], axis=1)
-        y_train = pd.concat([y_train_ecg, y_train_eda, y_train_emg], axis=1)
-        y_test = pd.concat([y_test_ecg, y_test_eda, y_test_emg], axis=1)
+        y_train = y_train_ecg  # all y_train sets are the same
+        y_test = y_test_ecg
 
         # concatenate only ECG and EDA data for ECG and EDA prediction
         X_train_ecg_eda = pd.concat([X_train_ecg, X_train_eda], axis=1)
         X_test_ecg_eda = pd.concat([X_test_ecg, X_test_eda], axis=1)
-        y_train_ecg_eda = pd.concat([y_train_ecg, y_train_eda], axis=1)
-        y_test_ecg_eda = pd.concat([y_test_ecg, y_test_eda], axis=1)
+        y_train_ecg_eda = y_train_ecg  # all y_train sets are the same
+        y_test_ecg_eda = y_test_ecg
 
         # concatenate demographics with ECG and EDA data for ECG and EDA prediction
         X_train_ecg_eda_demo = pd.concat([X_train_ecg_demo, X_train_eda], axis=1)
         X_test_ecg_eda_demo = pd.concat([X_test_ecg_demo, X_test_eda], axis=1)
-        y_train_ecg_eda_demo = pd.concat([y_train_ecg_demo, y_train_eda], axis=1)
-        y_test_ecg_eda_demo = pd.concat([y_test_ecg_demo, y_test_eda], axis=1)
+        y_train_ecg_eda_demo = y_train_ecg  # all y_train sets are the same
+        y_test_ecg_eda_demo = y_test_ecg
 
         # random forest regressor:
         rf_ecg = RandomForestRegressor(n_estimators=100, random_state=42)
