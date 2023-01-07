@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from config import SAVED_DATA, PLOTS, COBOT_RESULTS, MANUAL_RESULTS
 
 
-def load_data(path):
+def load_data(path: Path) -> pd.DataFrame:
     """
     Load data from a csv file
     :param path: path to the csv file
@@ -23,7 +23,7 @@ def load_data(path):
     return pd.read_csv(path)
 
 
-def handle_missing_values(df):
+def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
     Handle missing values
     :param df: pandas dataframe
@@ -36,29 +36,40 @@ def handle_missing_values(df):
     return df.dropna()  # drop rows that have stray nans
 
 
-def split_data(data, add_demographics=False):
+def split_data(data, add_demographics=False, classify=False) -> \
+        (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
 
     """
     Split data into train and test sets
     @param data: pandas dataframe
     @param add_demographics: boolean: whether to add demographics to the model's features.
+    @param classify: boolean: whether to use classification or regression
     :return: train and test sets
     """
-    columns_to_drop = ['patient', 'filename', 'Stress', 'NARS_S3', 'NARS_S2', 'NARS_S1',
+    columns_to_drop = ['patient', 'filename', 'Stress', 'discrete_stress', 'NARS_S3', 'NARS_S2', 'NARS_S1',
                        'PSS', 'NASA_Total', 'Frustration', 'Physical_Demand', 'Mental_Demand', 'Fatigue', 'STAI_Total',
                        'File_number', 'Task', 'ID'] if add_demographics else \
-        ['Age', 'Experience', 'Sex', 'patient', 'filename', 'Stress', 'NARS_S3', 'NARS_S2', 'NARS_S1', 'PSS',
+        ['Age', 'Experience', 'Sex', 'patient', 'filename', 'Stress', 'discrete_stress', 'NARS_S3', 'NARS_S2', 'NARS_S1', 'PSS',
          'NASA_Total', 'Frustration', 'Physical_Demand', 'Mental_Demand', 'Fatigue', 'STAI_Total', 'File_number',
          'Task', 'ID']
 
+    # features:
     X = data.drop(columns=columns_to_drop)
 
-    y = data["Stress"]
+    # labels:
+    y = data["discrete_stress"] if classify else data["Stress"]
+
+    # split the data into train and test sets using a 80/20 split and a random state of 42 for all models:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
     return X_train, X_test, y_train, y_test
 
 
 def main():
+    """
+    Main function to run the random forest model on the data
+    :return: None. Saves the results and plots to the results folder
+    """
 
     for task in ['cobot', 'manual']:
 

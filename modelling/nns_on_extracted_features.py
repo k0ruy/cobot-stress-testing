@@ -4,13 +4,12 @@ from pathlib import Path
 import keras.callbacks
 import numpy as np
 import pandas as pd
-from keras.losses import mean_absolute_error
 from keras.models import Sequential
-from keras.layers import Dense, LSTM
-from sklearn.metrics import r2_score, mean_squared_error, explained_variance_score
+from keras.layers import Dense, SimpleRNN
+from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 
-from simple_stress_predictor import load_data, handle_missing_values, split_data
+from rf_stress_prediction import load_data, handle_missing_values, split_data
 import matplotlib.pyplot as plt
 
 # Global variables:
@@ -18,6 +17,7 @@ from config import SAVED_DATA, COBOT_RESULTS, MANUAL_RESULTS
 
 # Tensorflow logging 3:
 import os
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
@@ -67,10 +67,10 @@ def nn_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_tes
     return model
 
 
-def lstm_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray,
-               path: Path) -> keras.Model:
+def rnn_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray,
+              path: Path) -> keras.Model:
     """
-    Generate the LSTM model
+    Generate the RNN model
     @param X_train: The training data
     @param X_test: The testing data
     @param y_train: The training stress labels
@@ -81,8 +81,8 @@ def lstm_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_t
 
     # create the model
     model = Sequential([
-        LSTM(64, input_shape=(X_train.shape[1], 1), return_sequences=True),
-        LSTM(32, return_sequences=False),
+        SimpleRNN(64, activation='relu', input_shape=(X_train.shape[1], 1)),
+        Dense(32, activation='relu'),
         Dense(1)
     ])
 
@@ -93,7 +93,7 @@ def lstm_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_t
     history = model.fit(X_train, y_train, epochs=40, batch_size=32, validation_data=(X_test, y_test), verbose=0)
 
     # Plot the history:
-    plot_history(history, model_type="lstm", path=path, title="LSTM model history")
+    plot_history(history, model_type="lstm", path=path, title="RNN model history")
 
     return model
 
@@ -106,9 +106,7 @@ def scale_and_normalize_data(X_train, X_test):
 
 
 def main():
-
     for task in ['cobot', 'manual']:
-
         # Define the path to use:
         path = Path(COBOT_RESULTS) if task == 'cobot' else Path(MANUAL_RESULTS)
 
@@ -142,41 +140,40 @@ def main():
 
         # Generate the models:
         ff_nn_model = nn_model(X_train, X_test, y_train, y_test, path)
-        lstm_nn_model = lstm_model(X_train, X_test, y_train, y_test, path)
+        rnn_nn_model = rnn_model(X_train, X_test, y_train, y_test, path)
 
         # predict the stress labels, rounded to the nearest integer:
         y_pred_ff_nn = np.round(ff_nn_model.predict(X_test))
-        y_pred_lstm = np.round(lstm_nn_model.predict(X_test))
+        y_pred_rnn = np.round(rnn_nn_model.predict(X_test))
 
         # calculate the mean squared error on the training data:
         mse_ff_nn_train = mean_squared_error(y_train, np.round(ff_nn_model.predict(X_train)))
-        mse_lstm_train = mean_squared_error(y_train, np.round(lstm_nn_model.predict(X_train)))
+        mse_rnn_train = mean_squared_error(y_train, np.round(rnn_nn_model.predict(X_train)))
 
         # calculate the mean squared error:
         mse_ff_nn = mean_squared_error(y_test, y_pred_ff_nn)
-        mse_lstm = mean_squared_error(y_test, y_pred_lstm)
+        mse_rnn = mean_squared_error(y_test, y_pred_rnn)
 
         # calculate the r2 score:
         r2_ff_nn = r2_score(y_test, y_pred_ff_nn)
-        r2_lstm = r2_score(y_test, y_pred_lstm)
+        r2_rnn = r2_score(y_test, y_pred_rnn)
 
-        with open(path / f"NN_{task}_evaluation.txt", "w") as f:
+        with open(path / f"nn_{task}_evaluation.txt", "w") as f:
             f.write("ECG stress prediction results with an un-tuned random forest regressor:")
             f.write("\n")
             f.write(f"Train score feed forward: {mse_ff_nn_train:.3f}")
             f.write("\n")
-            f.write(f"Train score LSTM: {mse_lstm_train:.3f}")
+            f.write(f"Train score RNN: {mse_rnn_train:.3f}")
             f.write("\n")
             f.write(f"Test score feed forward: {mse_ff_nn:.3f}")
             f.write("\n")
-            f.write(f"Test score LSTM: {mse_lstm:.3f}")
+            f.write(f"Test score RNN: {mse_rnn:.3f}")
             f.write("\n")
             f.write(f"R2 score feed forward: {r2_ff_nn:.3f}")
             f.write("\n")
-            f.write(f"R2 score LSTM: {r2_lstm:.3f}")
+            f.write(f"R2 score RNN: {r2_rnn:.3f}")
             f.write("\n")
 
 
 if __name__ == '__main__':
     main()
-
