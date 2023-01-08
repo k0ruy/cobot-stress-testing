@@ -1,25 +1,13 @@
 # Libraries:
 # Data manipulation:
 import pandas as pd
-from config import SAVED_DATA
-from modelling.rf_stress_prediction import handle_missing_values
 # Dimensionality reduction:
 import umap
 from modelling.rf_stress_prediction import load_data, handle_missing_values, split_data
-import matplotlib.pyplot as plt
-import numpy as np
+from t_SNE import merge_data
 
-
-def merge_data(dataframes: [pd.DataFrame], axis: int = 0) -> pd.DataFrame:
-    """
-    Auxiliary function to merge dataframes along the axis of choice.
-    :param dataframes: [pd.dataframe]: the dataframes to merge.
-    :param axis: int: axis to merge on
-    :return: dataframe: pd.Dataframe: the merged dataframe
-    """
-    dataframe = pd.concat(dataframes, axis=axis)
-
-    return dataframe
+# Global variables:
+from config import SAVED_DATA
 
 
 def main() -> None:
@@ -43,7 +31,7 @@ def main() -> None:
     cobot_and_manual = merge_data(dataframes=[cobot, manual], axis=0)
 
     # split the dataset:
-    X_train, X_test, y_train, y_test = split_data(cobot_and_manual, add_demographics=True, classify=True)
+    X_train, X_test, y_train, y_test = split_data(cobot_and_manual, add_demographics=True, classify=False)
 
     # merge the features since we are inspecting the data:
     X = merge_data(dataframes=[X_train, X_test], axis=0)
@@ -58,12 +46,12 @@ def main() -> None:
     y.to_csv(SAVED_DATA / "stress_for_umap.csv")
 
     # fit
-    umap_results = umap.UMAP(n_neighbors=5).fit_transform(X)
+    umap_results = umap.UMAP(n_neighbors=50, n_components=3).fit_transform(X, y=y)
 
     # save the results as a dataframe, add the CustomerID as the first column:
     umap_results_df = pd.DataFrame(umap_results)
 
-    umap_results_df.to_csv(SAVED_DATA / f'umap.csv', index=False)
+    umap_results_df.to_csv(SAVED_DATA / f'cobot_manual_umap.csv', index=False)
 
 
 # Driver:
