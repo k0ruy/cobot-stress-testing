@@ -3,10 +3,9 @@
 # Data manipulation:
 import pandas as pd
 from config import SAVED_DATA
-from modelling.rf_stress_prediction import handle_missing_values
 # Dimensionality reduction:
 from sklearn.manifold import TSNE
-from modelling.rf_stress_prediction import load_data, handle_missing_values, split_data
+from modelling.regression.rf_stress_prediction import load_data, handle_missing_values, split_data
 
 
 # Global variables:

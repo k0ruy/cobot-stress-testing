@@ -9,6 +9,7 @@ from config import SAVED_DATA, PLOTS
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 mpl.use('tkagg')
 
 
@@ -17,53 +18,72 @@ def main() -> None:
     Main function to run the script
     :return: None. Saves the plots to the plots folder
     """
-    # load the t-SNE dataset:
-    umap_path = SAVED_DATA / 'cobot_manual_umap.csv'
-    umap = pd.read_csv(umap_path).values
+    # load the t-SNE datasets:
+    cmr_umap_path = SAVED_DATA / 'cobot_manual_umap_regression.csv'
+    cmc_umap_path = SAVED_DATA / 'cobot_manual_umap_classification.csv'
+    cr_umap_path = SAVED_DATA / 'cobot_umap_regression.csv'
+    cc_umap_path = SAVED_DATA / 'cobot_umap_classification.csv'
+    mr_umap_pat = SAVED_DATA / 'manual_umap_regression.csv'
+    mc_umap_path = SAVED_DATA / 'manual_umap_classification.csv'
+    paths = [cmr_umap_path, cmc_umap_path, cr_umap_path, cc_umap_path, mr_umap_pat, mc_umap_path]
 
-    # 2D and 3D datasetes:
-    # rename the columns to umap_2_f1, umap_2_f2, umap_3_f1, umap_3_f2, umap_3_f3
-    umap_2 = umap[:, :2]
-    umap_3 = umap[:, :3]
-    umap_2 = pd.DataFrame(umap_2, columns=['umap_2_f1', 'umap_2_f2'])
-    umap_3 = pd.DataFrame(umap_3, columns=['umap_3_f1', 'umap_3_f2', 'umap_3_f3'])
+    # load the dataframes:
+    dataframes = [pd.read_csv(path) for path in paths]
+    # names of the dataframes:
+    names = ['cobot_manual_regression', 'cobot_manual_classification', 'cobot_regression', 'cobot_classification',
+             'manual_regression', 'manual_classification']
 
-    # load the target:
-    target = pd.read_csv(SAVED_DATA / 'stress_for_umap.csv', index_col=0)
+    target_csv_names = ['cobot_manual', 'cobot_manual', 'cobot', 'cobot', 'manual', 'manual']
 
-    c = target.Stress.values.astype(int)
-    # create a 2D figure:
-    fig, ax = plt.subplots(1, figsize=(14, 10))
-    sc = ax.scatter(umap_2.umap_2_f1, umap_2.umap_2_f2, c=c, s=20, alpha=0.8,
-                    edgecolors='k', cmap='viridis')
-    plt.title('Stress embedded via UMAP 2D')
+    dataframes = [df.rename(columns={'0': 'umap_f1', '1': 'umap_f2', '2': 'umap_f3'}) for df in dataframes]
 
-    # save the figure:
-    try:
-        fig.savefig(Path(PLOTS / 'umap_2D.png'))
-    except FileNotFoundError:
-        # create the directory:
-        Path(PLOTS / f'UMAP').mkdir(parents=True, exist_ok=True)
+    # create a 2D figure for each dataset:
+    for i, df in enumerate(dataframes):
+
+        # load the target:
+        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap.csv', index_col=0)
+        c = target.Stress.values.astype(int)
+
+        # create a figure:
+        fig = plt.figure(figsize=(16, 10))
+        # create a 2D scatter plot:
+        ax = fig.add_subplot(111)
+        sc = ax.scatter(df.umap_f1, df.umap_f2, c=c, s=20, alpha=0.8,
+                        edgecolors='k', cmap='viridis')
+        plt.title(f'UMAP 2D Plot for {names[i]}')
+        plt.legend(title='Stress level', *sc.legend_elements())
+
         # save the figure:
-        fig.savefig(Path(PLOTS / f'UMAP', 'umap_2D.png'))
+        try:
+            fig.savefig(Path(PLOTS / 'UMAP', f'umap_2D_{names[i]}.png'))
+        except FileNotFoundError:
+            # create the directory:
+            Path(PLOTS / f'UMAP').mkdir(parents=True, exist_ok=True)
+            # save the figure:
+            fig.savefig(Path(PLOTS / f'UMAP', f'umap_2D_{names[i]}.png'))
 
+    # create a 3D figure for each dataset:
+    for i, df in enumerate(dataframes):
+        # load the target:
+        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap.csv', index_col=0)
+        c = target.Stress.values.astype(int)
+        # create a figure:
+        fig = plt.figure(figsize=(16, 10))
+        # create a 3D scatter plot:
+        ax = fig.add_subplot(111, projection='3d')
+        sc = ax.scatter(df.umap_f1, df.umap_f2, df.umap_f3, c=c, s=20, alpha=0.8,
+                        edgecolors='k', cmap='viridis')
+        plt.title(f'UMAP 3D Plot for {names[i]}')
+        plt.legend(title='Stress level', *sc.legend_elements())
 
-    # create a 3D figure:
-    fig = plt.figure(figsize=(16, 10))
-    ax = fig.add_subplot(111, projection='3d')
-    sc = ax.scatter(umap_3.umap_3_f1, umap_3.umap_3_f2, umap_3.umap_3_f3, c=c, s=20, alpha=0.8,
-                    edgecolors='k', cmap='viridis')
-    plt.title('Stress Embedded via UMAP 3D')
-    plt.legend(title='Stress level', *sc.legend_elements())
-
-    # save the figure:
-    try:
-        fig.savefig(Path(PLOTS / 'umap_3D.png'))
-    except FileNotFoundError:
-        # create the directory:
-        Path(PLOTS / f'UMAP').mkdir(parents=True, exist_ok=True)
         # save the figure:
-        fig.savefig(Path(PLOTS / f'UMAP', 'umap_3D.png'))
+        try:
+            fig.savefig(Path(PLOTS / 'UMAP', f'umap_3D_{names[i]}.png'))
+        except FileNotFoundError:
+            # create the directory:
+            Path(PLOTS / f'UMAP').mkdir(parents=True, exist_ok=True)
+            # save the figure:
+            fig.savefig(Path(PLOTS / f'UMAP', f'umap_3D_{names[i]}.png'))
 
 
 # Driver:
