@@ -59,6 +59,9 @@ def split_data(data, add_demographics=False, classify=False) -> \
     # labels:
     y = data["discrete_stress"] if classify else data["Stress"]
 
+    # drop duplicate columns if we discretized the stress for all dataframes:
+    y = y.loc[:, ~y.columns.duplicated()].copy()
+
     # split the data into train and test sets using a 80/20 split and a random state of 42 for all models:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
