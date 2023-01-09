@@ -1,0 +1,5 @@
+Patient 8 manual results:
+ECG R2: -0.278
+EDA R2: -0.066
+EMG R2: -0.250
+Merged R2: -0.137

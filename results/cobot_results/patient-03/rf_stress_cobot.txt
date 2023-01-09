@@ -1,0 +1,5 @@
+Patient 3 cobot results:
+ECG R2: 0.000
+EDA R2: 0.000
+EMG R2: 0.000
+Merged R2: 0.000

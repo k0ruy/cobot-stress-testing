@@ -1,0 +1,5 @@
+Patient 6 cobot results:
+ECG R2: 0.080
+EDA R2: 0.434
+EMG R2: 0.304
+Merged R2: 0.399

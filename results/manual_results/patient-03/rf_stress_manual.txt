@@ -1,0 +1,5 @@
+Patient 3 manual results:
+ECG R2: 0.367
+EDA R2: -0.386
+EMG R2: -0.296
+Merged R2: -0.259

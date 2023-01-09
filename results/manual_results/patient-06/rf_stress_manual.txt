@@ -1,0 +1,5 @@
+Patient 6 manual results:
+ECG R2: -0.005
+EDA R2: 0.218
+EMG R2: 0.229
+Merged R2: 0.262
