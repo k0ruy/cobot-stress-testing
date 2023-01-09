@@ -9,14 +9,12 @@ from matplotlib import pyplot as plt
 
 # Modelling:
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score, roc_auc_score, confusion_matrix, plot_confusion_matrix, \
-    plot_precision_recall_curve, plot_roc_curve
+from sklearn.metrics import f1_score
 
 from modelling.regression.rf_stress_prediction import load_data, handle_missing_values, split_data
 
 # Global variables
 from config import SAVED_DATA, COBOT_RESULTS, MANUAL_RESULTS, PLOTS
-
 
 def main():
     """
@@ -149,6 +147,9 @@ def main():
         plt.barh(pos, feature_importance[top_10], align='center')
         plt.yticks(pos, X_train.columns[top_10])
         plt.xlabel('Relative Importance')
+        plt.title('Variable Importance')
+        Path(PLOTS).mkdir(parents=True, exist_ok=True)
+        plt.savefig(PLOTS / f"rf_{task}_classification_feature_importance.png")
 
 
 if __name__ == '__main__':
