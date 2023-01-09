@@ -13,6 +13,8 @@ EXPERIMENTS = Path(ROOT, 'experiments')
 SAVED_DATA = Path(ROOT, 'saved_data')
 QUESTIONNAIRES = Path(ROOT, 'questionnaires.pkl')
 QUESTIONNAIRES_CLEANED = Path(SAVED_DATA, 'questionnaires_cleaned.pkl')
+
+# Results folders
 RESULTS = Path(ROOT, 'results')
 COBOT_RESULTS = Path(RESULTS, 'cobot_results')
 MANUAL_RESULTS = Path(RESULTS, 'manual_results')

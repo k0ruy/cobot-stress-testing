@@ -59,8 +59,8 @@ def split_data(data, add_demographics=False, classify=False) -> \
     # labels:
     y = data["discrete_stress"] if classify else data["Stress"]
 
-    # drop duplicate columns if we discretized the stress for all dataframes:
-    y = y.loc[:, ~y.columns.duplicated()].copy()
+    # drop duplicate columns if we discretized the stress for all
+    # y = y.loc[:, ~y.columns.duplicated()].copy()
 
     # split the data into train and test sets using a 80/20 split and a random state of 42 for all models:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -76,29 +76,18 @@ def main():
 
     for task in ['cobot', 'manual']:
 
-        X_train_ecg, X_test_ecg, y_train_ecg, y_test_ecg = split_data(
-            handle_missing_values(
-                load_data(SAVED_DATA / f"ecg_{task}.csv")
-            )
-        )
+        # load data:
+        X_train_ecg_demo, X_test_ecg_demo, y_train_ecg_demo, y_test_ecg_demo = split_data(handle_missing_values(
+            load_data(SAVED_DATA / f'ecg_{task}.csv')), add_demographics=True)
 
-        X_train_eda, X_test_eda, y_train_eda, y_test_eda = split_data(
-            handle_missing_values(
-                load_data(SAVED_DATA / f"eda_{task}.csv")
-            )
-        )
+        X_train_ecg, X_test_ecg, y_train_ecg, y_test_ecg = split_data(handle_missing_values(
+            load_data(SAVED_DATA / f'ecg_{task}.csv')), add_demographics=False)
 
-        X_train_emg, X_test_emg, y_train_emg, y_test_emg = split_data(
-            handle_missing_values(
-                load_data(SAVED_DATA / f"emg_{task}.csv")
-            )
-        )
+        X_train_eda, X_test_eda, y_train_eda, y_test_eda = split_data(handle_missing_values(
+            load_data(SAVED_DATA / f'eda_{task}.csv')), add_demographics=False)
 
-        X_train_ecg_demo, X_test_ecg_demo, y_train_ecg_demo, y_test_ecg_demo = split_data(
-            handle_missing_values(
-                load_data(SAVED_DATA / f"ecg_{task}.csv")
-            ), add_demographics=True
-        )
+        X_train_emg, X_test_emg, y_train_emg, y_test_emg = split_data(handle_missing_values(
+            load_data(SAVED_DATA / f'emg_{task}.csv')), add_demographics=False)
 
         # concatenate x and y train and test sets for total data prediction
         X_train = pd.concat([X_train_ecg, X_train_eda, X_train_emg], axis=1)
