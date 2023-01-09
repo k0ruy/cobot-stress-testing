@@ -45,6 +45,7 @@ def main() -> None:
         if "discrete_stress" in y.columns:
             y.rename(columns={"discrete_stress": "Stress"}, inplace=True)
 
+        y = y.iloc[:, 0]
         # fit
         umap_results = umap.UMAP(n_neighbors=10, n_components=3).fit_transform(X, y=y)
 
@@ -74,6 +75,8 @@ def main() -> None:
         # if we are using discrete stress, rename it to Stress to have a single target name for EDA visualizations:
         if "discrete_stress" in y.columns:
             y.rename(columns={"discrete_stress": "Stress"}, inplace=True)
+
+        y = y.iloc[:, 0]
         # Supervised fitting the embedding on the target:
         umap_results = umap.UMAP(n_neighbors=30, n_components=3).fit_transform(X, y=y)
 
