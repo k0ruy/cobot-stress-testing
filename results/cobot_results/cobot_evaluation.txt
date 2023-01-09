@@ -1,48 +1,48 @@
 ECG stress prediction results with an un-tuned random forest regressor:
 Train score: 0.976
-Test score: 0.803
-Mean absolute error: 0.980
-Mean squared error: 2.147
-Root mean squared error: 1.465
-R2 score: 0.799
-Explained variance score: 0.799
+Test score: 0.872
+Mean absolute error: 0.909
+Mean squared error: 1.964
+Root mean squared error: 1.402
+R2 score: 0.865
+Explained variance score: 0.867
 EDA stress prediction results with an un-tuned random forest regressor:
-Train score: 0.950
-Test score: 0.599
-Mean absolute error: 1.416
-Mean squared error: 4.239
-Root mean squared error: 2.059
-R2 score: 0.603
-Explained variance score: 0.604
+Train score: 0.944
+Test score: 0.684
+Mean absolute error: 1.518
+Mean squared error: 4.736
+Root mean squared error: 2.176
+R2 score: 0.676
+Explained variance score: 0.676
 EMG stress prediction results with an un-tuned random forest regressor:
-Train score: 0.900
-Test score: 0.235
-Mean absolute error: 1.929
-Mean squared error: 8.325
-Root mean squared error: 2.885
-R2 score: 0.221
-Explained variance score: 0.225
+Train score: 0.893
+Test score: 0.281
+Mean absolute error: 2.036
+Mean squared error: 10.533
+Root mean squared error: 3.245
+R2 score: 0.279
+Explained variance score: 0.280
 All stress prediction results with an un-tuned random forest regressor:
-Train score: 0.978
-Test score: 0.833
-Mean absolute error: 0.898
-Mean squared error: 1.792
-Root mean squared error: 1.339
-R2 score: 0.832
-Explained variance score: 0.833
-ECG and EDA stress prediction results with an un-tuned random forest regressor:
-Train score: 0.978
-Test score: 0.833
-Mean absolute error: 0.954
-Mean squared error: 1.909
-Root mean squared error: 1.382
-R2 score: 0.821
-Explained variance score: 0.821
-ECG, EDA, and demographics stress prediction results with an un-tuned random forest regressor:
-Train score: 0.978
-Test score: 0.828
-Mean absolute error: 0.944
+Train score: 0.979
+Test score: 0.881
+Mean absolute error: 0.924
 Mean squared error: 1.919
 Root mean squared error: 1.385
-R2 score: 0.820
-Explained variance score: 0.821
+R2 score: 0.869
+Explained variance score: 0.869
+ECG and EDA stress prediction results with an un-tuned random forest regressor:
+Train score: 0.979
+Test score: 0.861
+Mean absolute error: 0.944
+Mean squared error: 2.142
+Root mean squared error: 1.464
+R2 score: 0.853
+Explained variance score: 0.853
+ECG, EDA, and demographics stress prediction results with an un-tuned random forest regressor:
+Train score: 0.979
+Test score: 0.860
+Mean absolute error: 0.919
+Mean squared error: 2.096
+Root mean squared error: 1.448
+R2 score: 0.856
+Explained variance score: 0.857

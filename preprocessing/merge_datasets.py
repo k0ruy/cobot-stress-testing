@@ -31,12 +31,10 @@ def merge_all_patients_csv_files():
         # get all files in the patient folders with rest in the name; merge them into one csv file:
         files = list(SAVED_DATA.rglob(f'*{task}*.csv'))
 
+        # get the specific files for each task
         ecg_rest_files = [file for file in files if 'ecg' in str(file)]
-        print(ecg_rest_files)
         eda_rest_files = [file for file in files if 'eda' in str(file)]
-        print(eda_rest_files)
         emg_rest_files = [file for file in files if 'emg' in str(file)]
-        print(emg_rest_files)
 
         # concatenate the rest files:
         ecg_rest_df = pd.concat([pd.read_csv(file) for file in ecg_rest_files])

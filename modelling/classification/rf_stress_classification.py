@@ -148,6 +148,7 @@ def main():
         plt.yticks(pos, X_train.columns[top_10])
         plt.xlabel('Relative Importance')
         plt.title('Variable Importance')
+        plt.subplots_adjust(left=0.2)
         Path(PLOTS).mkdir(parents=True, exist_ok=True)
         plt.savefig(PLOTS / f"rf_{task}_classification_feature_importance.png")
 

@@ -28,15 +28,8 @@ def main() -> None:
         # remove the row with index 73 as it is the row with the file 06-05-30_10-53-13_manual:
         q_c = q_c.drop(q_c.iloc[73].name)
 
-        # TODO: Chri, is this needed?
-        # duplicate all rows with user ID 10:
-        # q_c_11 = q_c[q_c['ID'] == 10].copy()
-
-        # change the ID to 11:
-        # q_c_11['ID'] = 11
-
-        # concatenate the two dataframes:
-        # q_c = pd.concat([q_c, q_c_11], axis=0)
+        # Shift the values to conform to the slide notation:
+        q_c['Number'] = q_c['Number'].values - 1
 
         # Drop number == 3 where ID == 1 the task is MANUAL:
         q_c = q_c.drop(q_c[(q_c['ID'] == 1) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 3)].index)
@@ -67,10 +60,10 @@ def main() -> None:
 
         # Drop number == 0 where ID == 7 the task is MANUAL:
         q_c = q_c.drop(q_c[(q_c['ID'] == 7) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == 0)].index)
-        # TODO: this does not exist in the original questionnaire, bug in the slides or we should consider 0 as 1?
+
         # Shift the numbers of the files with ID == 7 and Task == MANUAL appropriately:
-        # for i in range(1, 16):
-            # q_c.loc[(q_c['ID'] == 7) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == i), 'Number'] = i - 1
+        for i in range(1, 16):
+            q_c.loc[(q_c['ID'] == 7) & (q_c['Task'] == 'MANUAL') & (q_c['Number'] == i), 'Number'] = i - 1
 
         # Drop number == 9 where ID == 7 the task is COBOT:
         q_c = q_c.drop(q_c[(q_c['ID'] == 7) & (q_c['Task'] == 'COBOT') & (q_c['Number'] == 9)].index)

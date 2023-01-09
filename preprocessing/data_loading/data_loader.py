@@ -60,8 +60,6 @@ def delete_unnecessary_files(data_dir: Path) -> None:
     :return: None
     """
     rmtree(data_dir / "Data Cobot Experiment")
-    # corrupted file:
-    # TODO: @Amos, Andrea, Chri., verify.
     os.remove(data_dir / 'rest' / '06-05-30_09-41-40_rest.txt')
     os.remove(data_dir / 'manual' / '06-05-30_10-53-13_manual.txt')
 

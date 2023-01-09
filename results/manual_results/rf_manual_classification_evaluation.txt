@@ -1,0 +1,23 @@
+ECG stress prediction results with an un-tuned random forest classifier:
+Train score accuracy: 1.000
+Test score accuracy: 0.726
+F1 score: 0.641
+EDA stress prediction results with an un-tuned random forest classifier:
+Train score: 1.000
+Test score: 0.742
+F1 score: 0.632
+EMG stress prediction results with an un-tuned random forest classifier:
+Train score accuracy: 1.000
+Test score accuracy: 0.737
+F1 score: 0.656
+All stress prediction results with an un-tuned random forest classifier:
+Train score accuracy: 1.000
+Test score accuracy: 0.747
+F1 score: 0.661
+ECG and EDA stress prediction results with an un-tuned random forest classifier:
+Train score accuracy: 1.000
+Test score accuracy: 0.747
+F1 score: 0.644
+Train score accuracy: 1.000
+Test score accuracy: 0.747
+F1 score: 0.644
