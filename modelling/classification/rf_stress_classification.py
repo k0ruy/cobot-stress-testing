@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 
 # Modelling:
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, plot_confusion_matrix
 
 from modelling.regression.rf_stress_prediction import load_data, handle_missing_values, split_data
 
@@ -151,7 +151,7 @@ def main():
         plt.subplots_adjust(left=0.2)
         Path(PLOTS).mkdir(parents=True, exist_ok=True)
         plt.savefig(PLOTS / f"rf_{task}_classification_feature_importance.png")
-
+        plt.close()
 
 if __name__ == '__main__':
     main()

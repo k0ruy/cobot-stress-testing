@@ -1,12 +1,12 @@
 # Library to classify stress for the cobot and manual experiments
 # Using the random forest classifier, since it was the best performing model on the merged data set
 # Data Manipulation:
+import os
 from pathlib import Path
 import numpy as np
 import pandas as pd
 # Modelling:
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error, explained_variance_score, r2_score
 from sklearn.model_selection import train_test_split
 from modelling.regression.rf_stress_prediction import handle_missing_values
 
@@ -75,7 +75,7 @@ def main():
             # handle missing values
             ecg, eda, emg = handle_missing_values(ecg), handle_missing_values(eda), handle_missing_values(emg)
 
-            # split data, demographics are constant, so it's pointless to add them.
+            # split data, demographics for one patient are constant, so it's pointless to add them.
             x_train_ecg, x_test_ecg, y_train_ecg, y_test_ecg = split_patient_data(ecg)
             x_train_eda, x_test_eda, y_train_eda, y_test_eda = split_patient_data(eda)
             x_train_emg, x_test_emg, y_train_emg, y_test_emg = split_patient_data(emg)
@@ -85,8 +85,6 @@ def main():
             x_test = pd.concat([x_test_ecg, x_test_eda, x_test_emg], axis=1)
             y_train = y_train_ecg
             y_test = y_test_ecg
-
-            print(x_train.columns, x_test.columns)
 
             # generate the models:
             rf_ecg = RandomForestRegressor(n_estimators=100, random_state=42)
@@ -106,9 +104,33 @@ def main():
             r2_emg = rf_emg.score(x_test_emg, y_test_emg)
             r2_merged = rf_merged.score(x_test, y_test)
 
+            # feature importance
+            feature_importance_ecg = rf_ecg.feature_importances_
+            feature_importance_eda = rf_eda.feature_importances_
+            feature_importance_emg = rf_emg.feature_importances_
+            feature_importance_merged = rf_merged.feature_importances_
+
+            # create dataframes for the feature importance
+            feature_importance_ecg_df = pd.DataFrame(feature_importance_ecg, index=x_train_ecg.columns, columns=['importance'])
+            feature_importance_eda_df = pd.DataFrame(feature_importance_eda, index=x_train_eda.columns, columns=['importance'])
+            feature_importance_emg_df = pd.DataFrame(feature_importance_emg, index=x_train_emg.columns, columns=['importance'])
+            feature_importance_merged_df = pd.DataFrame(feature_importance_merged, index=x_train.columns, columns=['importance'])
+
+            # sort by feature importance:
+            feature_importance_ecg_df.sort_values(by='importance', ascending=False, inplace=True)
+            feature_importance_eda_df.sort_values(by='importance', ascending=False, inplace=True)
+            feature_importance_emg_df.sort_values(by='importance', ascending=False, inplace=True)
+            feature_importance_merged_df.sort_values(by='importance', ascending=False, inplace=True)
+
             # save the results:
             patient_path = Path(path, f'patient-{patient_nr:02d}')
             patient_path.mkdir(parents=True, exist_ok=True)
+
+            # save the feature importances
+            feature_importance_ecg_df.to_csv(os.path.join(patient_path, f'feature_importance_ecg_patient_{patient_nr}.csv'))
+            feature_importance_eda_df.to_csv(os.path.join(patient_path, f'feature_importance_eda_patient_{patient_nr}.csv'))
+            feature_importance_emg_df.to_csv(os.path.join(patient_path, f'feature_importance_emg_patient_{patient_nr}.csv'))
+            feature_importance_merged_df.to_csv(os.path.join(patient_path, f'feature_importance_merged_patient_{patient_nr}.csv'))
 
             with open(patient_path / f'rf_stress_{task}.txt', 'w') as f:
                 f.write(f'Patient {patient_nr} {task} results:\n')
@@ -116,25 +138,6 @@ def main():
                 f.write(f'EDA R2: {r2_eda:.3f}\n')
                 f.write(f'EMG R2: {r2_emg:.3f}\n')
                 f.write(f'Merged R2: {r2_merged:.3f}\n')
-
-        # try combining cobot and manual data for each patient:
-        ecg_cobot, eda_cobot, emg_cobot = load_patient_data(patient_nr, 'cobot')
-        ecg_manual, eda_manual, emg_manual = load_patient_data(patient_nr, 'manual')
-
-        # handle missing values
-        ecg_cobot, eda_cobot, emg_cobot = handle_missing_values(ecg_cobot), \
-                                          handle_missing_values(eda_cobot), handle_missing_values(emg_cobot)
-        ecg_manual, eda_manual, emg_manual = handle_missing_values(ecg_manual), \
-                                             handle_missing_values(eda_manual), handle_missing_values(emg_manual)
-
-        # split data, demographics are constant, so it's pointless to add them.
-        x_train_ecg_cobot, x_test_ecg_cobot, y_train_ecg_cobot, y_test_ecg_cobot = split_patient_data(ecg_cobot)
-        x_train_eda_cobot, x_test_eda_cobot, y_train_eda_cobot, y_test_eda_cobot = split_patient_data(eda_cobot)
-        x_train_emg_cobot, x_test_emg_cobot, y_train_emg_cobot, y_test_emg_cobot = split_patient_data(emg_cobot)
-        x_train_ecg_manual, x_test_ecg_manual, y_train_ecg_manual, y_test_ecg_manual = split_patient_data(ecg_manual)
-        x_train_eda_manual, x_test_eda_manual, y_train_eda_manual, y_test_eda_manual = split_patient_data(eda_manual)
-        x_train_emg_manual, x_test_emg_manual, y_train_emg_manual, y_test_emg_manual = split_patient_data(emg_manual)
-
 
 
 if __name__ == '__main__':
