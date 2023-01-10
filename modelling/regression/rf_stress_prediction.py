@@ -31,8 +31,6 @@ def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
     df.dropna(axis=1, how='all', inplace=True)  # drop columns that have all nans
 
-    assert df.isnull().sum().sum() == 0, "There are still missing values in the dataframe"
-
     return df.dropna()  # drop rows that have stray nans
 
 

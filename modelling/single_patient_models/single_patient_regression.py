@@ -10,8 +10,12 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, explained_v
 from sklearn.model_selection import train_test_split
 from modelling.regression.rf_stress_prediction import handle_missing_values
 
+# remove limit for printing on the console
+pd.set_option('display.max_columns', None)
+
 # Global variables
 from config import SAVED_DATA, COBOT_RESULTS, MANUAL_RESULTS
+
 
 # Functions:
 def load_patient_data(patient_id: int, task: str) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
@@ -59,15 +63,18 @@ def main():
     for the cobot and manual experiments.
     :return: None. Saves the results to the results folder.
     """
-    for task in ['cobot', 'manual']:
-        # get the correct path for the task:
-        path = COBOT_RESULTS if task == 'cobot' else MANUAL_RESULTS
 
-        for patient_nr in range(1, 11):
+    for patient_nr in range(1, 11):
+
+        for task in ['cobot', 'manual']:
+            # get the correct path for the task:
+            path = COBOT_RESULTS if task == 'cobot' else MANUAL_RESULTS
+
             # load the data
             ecg, eda, emg = load_patient_data(patient_nr, task)
             # handle missing values
             ecg, eda, emg = handle_missing_values(ecg), handle_missing_values(eda), handle_missing_values(emg)
+
             # split data, demographics are constant, so it's pointless to add them.
             x_train_ecg, x_test_ecg, y_train_ecg, y_test_ecg = split_patient_data(ecg)
             x_train_eda, x_test_eda, y_train_eda, y_test_eda = split_patient_data(eda)
@@ -79,15 +86,20 @@ def main():
             y_train = y_train_ecg
             y_test = y_test_ecg
 
-            # train the models
+            print(x_train.columns, x_test.columns)
+
+            # generate the models:
             rf_ecg = RandomForestRegressor(n_estimators=100, random_state=42)
             rf_eda = RandomForestRegressor(n_estimators=100, random_state=42)
             rf_emg = RandomForestRegressor(n_estimators=100, random_state=42)
             rf_merged = RandomForestRegressor(n_estimators=100, random_state=42)
+
+            # fit the models:
             rf_ecg.fit(x_train_ecg, y_train_ecg)
             rf_eda.fit(x_train_eda, y_train_eda)
             rf_emg.fit(x_train_emg, y_train_emg)
             rf_merged.fit(x_train, y_train)
+
             # evaluate the models
             r2_ecg = rf_ecg.score(x_test_ecg, y_test_ecg)
             r2_eda = rf_eda.score(x_test_eda, y_test_eda)
@@ -104,6 +116,25 @@ def main():
                 f.write(f'EDA R2: {r2_eda:.3f}\n')
                 f.write(f'EMG R2: {r2_emg:.3f}\n')
                 f.write(f'Merged R2: {r2_merged:.3f}\n')
+
+        # try combining cobot and manual data for each patient:
+        ecg_cobot, eda_cobot, emg_cobot = load_patient_data(patient_nr, 'cobot')
+        ecg_manual, eda_manual, emg_manual = load_patient_data(patient_nr, 'manual')
+
+        # handle missing values
+        ecg_cobot, eda_cobot, emg_cobot = handle_missing_values(ecg_cobot), \
+                                          handle_missing_values(eda_cobot), handle_missing_values(emg_cobot)
+        ecg_manual, eda_manual, emg_manual = handle_missing_values(ecg_manual), \
+                                             handle_missing_values(eda_manual), handle_missing_values(emg_manual)
+
+        # split data, demographics are constant, so it's pointless to add them.
+        x_train_ecg_cobot, x_test_ecg_cobot, y_train_ecg_cobot, y_test_ecg_cobot = split_patient_data(ecg_cobot)
+        x_train_eda_cobot, x_test_eda_cobot, y_train_eda_cobot, y_test_eda_cobot = split_patient_data(eda_cobot)
+        x_train_emg_cobot, x_test_emg_cobot, y_train_emg_cobot, y_test_emg_cobot = split_patient_data(emg_cobot)
+        x_train_ecg_manual, x_test_ecg_manual, y_train_ecg_manual, y_test_ecg_manual = split_patient_data(ecg_manual)
+        x_train_eda_manual, x_test_eda_manual, y_train_eda_manual, y_test_eda_manual = split_patient_data(eda_manual)
+        x_train_emg_manual, x_test_emg_manual, y_train_emg_manual, y_test_emg_manual = split_patient_data(emg_manual)
+
 
 
 if __name__ == '__main__':
