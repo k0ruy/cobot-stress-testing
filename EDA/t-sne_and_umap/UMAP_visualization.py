@@ -41,7 +41,7 @@ def main() -> None:
     for i, df in enumerate(dataframes):
 
         # load the target:
-        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap.csv', index_col=0)
+        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap_classification.csv', index_col=0)
         c = target.Stress.values.astype(int)
 
         # create a figure:
@@ -65,7 +65,7 @@ def main() -> None:
     # create a 3D figure for each dataset:
     for i, df in enumerate(dataframes):
         # load the target:
-        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap.csv', index_col=0)
+        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap_regression.csv', index_col=0)
         c = target.Stress.values.astype(int)
         # create a figure:
         fig = plt.figure(figsize=(16, 10))

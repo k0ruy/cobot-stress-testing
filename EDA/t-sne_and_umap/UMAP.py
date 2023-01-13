@@ -60,6 +60,7 @@ def main() -> None:
             name = 'cobot_manual'
 
         umap_results_df.to_csv(SAVED_DATA / f'{name}_umap_regression.csv', index=False)
+        y.to_csv(SAVED_DATA / f"{name}_stress_for_umap_regression.csv")
 
     for i, d in enumerate([cobot, manual, cobot_and_manual]):
 
@@ -91,7 +92,7 @@ def main() -> None:
             name = 'cobot_manual'
 
         umap_results_df.to_csv(SAVED_DATA / f'{name}_umap_classification.csv', index=False)
-        y.to_csv(SAVED_DATA / f"{name}_stress_for_umap.csv")
+        y.to_csv(SAVED_DATA / f"{name}_stress_for_umap_classification.csv")
 
 
 # Driver:
