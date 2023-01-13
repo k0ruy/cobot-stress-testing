@@ -94,6 +94,19 @@ def main() -> None:
         print(q_c.head(2000))
 
 
+def check_patient_3():
+    # Load the original questionnaires:
+    with open(QUESTIONNAIRES, "rb") as f:
+        questionnaires = pickle.load(f)
+
+    # Check the number of files for patient 3 and task COBOT:
+    print(questionnaires[questionnaires['ID'] == 3].shape[0])
+
+    # Check the stress values for patient 3 and task COBOT:
+    print(questionnaires[(questionnaires['ID'] == 3) & (questionnaires['Task'] == 'COBOT')]['Stress'].values)
+
+
 # Driver:
 if __name__ == '__main__':
     main()
+    check_patient_3()

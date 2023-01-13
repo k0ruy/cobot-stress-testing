@@ -248,7 +248,9 @@ def main():
         plt.subplots_adjust(bottom=0.3)
         # rotate the x-axis labels:
         plt.xticks(rotation=15)
-        plt.title("Feature importance")
+        # decrease the font size of the x-axis labels:
+        plt.tick_params(axis='x', labelsize=8)
+        plt.title(f"Top 10 most important features for predicting stress for task: {task}")
         plt.savefig(Path(PLOTS, f"{task}_feature_importance.png"))
         plt.show()
 

@@ -39,6 +39,21 @@ def xgboost_stress_predictions(task: str, type: str, X_train, X_test, y_train, y
     feature_importances = feature_importances.sort_values(by='Importance', ascending=False)
     feature_importances.to_csv(results_path / f'{task}_{type}_feature_importances.csv')
 
+    # sort the features by importance:
+    feature_importances = feature_importances.sort_values(by='Importance', ascending=False)
+
+    feature_importances[0:10].plot(kind='bar', figsize=(10, 5))
+    # add space for the x-axis labels:
+    plt.subplots_adjust(bottom=0.3)
+    # rotate the x-axis labels:
+    plt.xticks(rotation=15)
+    plt.subplots_adjust(bottom=0.3)
+    # no legend:
+    plt.legend().set_visible(False)
+    plt.title(f"Xgboost top 10 features for {task} {type} data")
+    plt.savefig(Path(PLOTS, f"xgboost_{task}_{type}_feature_importance.png"))
+    plt.show()
+
 
 def main():
 
