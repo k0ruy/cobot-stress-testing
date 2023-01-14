@@ -1,7 +1,10 @@
 ECG stress prediction results with an un-tuned random forest regressor:
-Train score feed forward: 1.678
-Train score RNN: 14.272
-Test score feed forward: 2.223
-Test score RNN: 11.259
-R2 score feed forward: 0.792
-R2 score RNN: -0.054
+Train score feed forward: 4.293
+Train score RNN: 10.182
+Train score RESNET: 0.494
+Test score feed forward: 4.827
+Test score RNN: 12.096
+Test score RESNET: 2.279
+R2 score feed forward: 0.669
+R2 score RNN: 0.172
+R2 score RESNET: 0.844

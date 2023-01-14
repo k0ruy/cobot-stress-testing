@@ -47,7 +47,7 @@ def main() -> None:
 
         y = y.iloc[:, 0]
         # fit
-        umap_results = umap.UMAP(n_neighbors=10, n_components=3).fit_transform(X, y=y)
+        umap_results = umap.UMAP(n_neighbors=80, n_components=3).fit_transform(X, y=y)
 
         # save the results as a dataframe, add the CustomerID as the first column:
         umap_results_df = pd.DataFrame(umap_results)
@@ -79,7 +79,7 @@ def main() -> None:
 
         y = y.iloc[:, 0]
         # Supervised fitting the embedding on the target:
-        umap_results = umap.UMAP(n_neighbors=30, n_components=3).fit_transform(X, y=y)
+        umap_results = umap.UMAP(n_neighbors=80, n_components=3).fit_transform(X, y=y)
 
         # save the results as a dataframe, add the CustomerID as the first column:
         umap_results_df = pd.DataFrame(umap_results)

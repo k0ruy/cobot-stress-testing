@@ -41,7 +41,7 @@ def main() -> None:
     for i, df in enumerate(dataframes):
 
         # load the target:
-        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap_classification.csv', index_col=0)
+        target = pd.read_csv(SAVED_DATA / f'{target_csv_names[i]}_stress_for_umap_regression.csv', index_col=0)
         c = target.Stress.values.astype(int)
 
         # create a figure:
@@ -50,6 +50,8 @@ def main() -> None:
         ax = fig.add_subplot(111)
         sc = ax.scatter(df.umap_f1, df.umap_f2, c=c, s=20, alpha=0.8,
                         edgecolors='k', cmap='viridis')
+        # invisible axis:
+        ax.axis('off')
         plt.title(f'UMAP 2D Plot for {names[i]}')
         plt.legend(title='Stress level', *sc.legend_elements())
 
@@ -75,6 +77,10 @@ def main() -> None:
                         edgecolors='k', cmap='viridis')
         plt.title(f'UMAP 3D Plot for {names[i]}')
         plt.legend(title='Stress level', *sc.legend_elements())
+        # invisible axis ticks for all the axes:
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_zticks([])
 
         # save the figure:
         try:

@@ -5,7 +5,9 @@ import keras.callbacks
 import numpy as np
 import pandas as pd
 from keras.models import Sequential
-from keras.layers import Dense, SimpleRNN, LSTM
+from keras.layers import SimpleRNN
+from keras.layers import Input, Conv1D, BatchNormalization, Activation, Add, MaxPooling1D, Flatten, Dense
+from keras.models import Model
 from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from modelling.regression.rf_stress_prediction import load_data, handle_missing_values, split_data
@@ -59,7 +61,7 @@ def nn_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_tes
     model.compile(loss='mean_squared_error', optimizer='adam')
 
     # Fit the model
-    history = model.fit(X_train, y_train, epochs=40, batch_size=32, validation_data=(X_test, y_test), verbose=0)
+    history = model.fit(X_train, y_train, epochs=15, batch_size=32, validation_data=(X_test, y_test), verbose=0)
 
     # Plot the history:
     plot_history(history, path)
@@ -67,7 +69,7 @@ def nn_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_tes
 
 
 def rnn_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray,
-              path: Path, first_layer_type: str = 'RNN') -> keras.Model:
+              path: Path) -> keras.Model:
     """
     Generate the RNN / LSTM model
     @param X_train: The training data
@@ -75,15 +77,13 @@ def rnn_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_te
     @param y_train: The training stress labels
     @param y_test: The testing stress labels
     @param path: Path: The path to save the plots to.
-    @param first_layer_type: str: The type of the first layer of the model, supports RNN and LSTM
     :return:  rnn / lstm model: keras.Model: The LSTM model
     """
 
     # create the model
     model = Sequential([
-        SimpleRNN(64, activation='relu', input_shape=(X_train.shape[1], 1)) if first_layer_type == "RNN" else
-        LSTM(64, activation='relu', input_shape=(X_train.shape[1], 1)),
-        Dense(32, activation='relu'),
+        SimpleRNN(64, activation='relu', input_shape=(X_train.shape[1], 1), return_sequences=True),
+        SimpleRNN(32, activation='relu', input_shape=(X_train.shape[1], 1)),
         Dense(1)
     ])
 
@@ -91,41 +91,62 @@ def rnn_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_te
     model.compile(loss='mean_squared_error', optimizer='adam')
 
     # Fit the model
-    history = model.fit(X_train, y_train, epochs=40, batch_size=32, validation_data=(X_test, y_test), verbose=0)
+    history = model.fit(X_train, y_train, epochs=30, batch_size=32, validation_data=(X_test, y_test), verbose=0)
 
     # Plot the history:
-    plot_history(history, model_type="lstm", path=path, title="RNN model history")
+    plot_history(history, model_type="rnn", path=path, title="RNN model history")
 
     return model
 
 
-def resnet_model(X_train: np.ndarray, X_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray,
-                 path: Path) -> keras.Model:
+def resnet(x_train: np.ndarray, x_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray, path: Path) -> Model:
     """
-    Generate the RNN model
-    @param X_train: The training data
-    @param X_test: The testing data
+    Function to generate a resnet regressor.
+    @param x_train: The training data
+    @param x_test: The testing data
     @param y_train: The training stress labels
     @param y_test: The testing stress labels
     @param path: Path: The path to save the plots to.
-    :return:  lstm model: keras.Model: The LSTM model
+    :return: Model: The resnet model
     """
+    inputs = Input(shape=(x_train.shape[1], 1))
+    x = Conv1D(64, kernel_size=3, strides=1, padding='same')(inputs)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
-    # create the model
-    model = Sequential([
-        SimpleRNN(64, activation='relu', input_shape=(X_train.shape[1], 1)),
-        Dense(32, activation='relu'),
-        Dense(1)
-    ])
+    y = Conv1D(64, kernel_size=3, strides=1, padding='same')(x)
+    y = BatchNormalization()(y)
+    y = Activation('relu')(y)
+    y = Conv1D(64, kernel_size=3, strides=1, padding='same')(y)
+    y = BatchNormalization()(y)
+    y = Add()([x, y])
+    x = Activation('relu')(y)
 
-    # Compile the model
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    y = Conv1D(64, kernel_size=3, strides=1, padding='same')(x)
+    y = BatchNormalization()(y)
+    y = Activation('relu')(y)
+    y = Conv1D(64, kernel_size=3, strides=1, padding='same')(y)
+    y = BatchNormalization()(y)
+    y = Add()([x, y])
+    x = Activation('relu')(y)
 
-    # Fit the model
-    history = model.fit(X_train, y_train, epochs=40, batch_size=32, validation_data=(X_test, y_test), verbose=0)
+    x = MaxPooling1D(pool_size=2, strides=2)(x)
+    x = Flatten()(x)
+    x = Dense(1)(x)
+    model = Model(inputs, x)
+
+    model.compile(optimizer='adam', loss='mean_squared_error')
+
+    # fit the model
+    model.fit(x_train, y_train, epochs=50, batch_size=32, validation_data=(x_test,
+                                                                           y_test), verbose=0)
 
     # Plot the history:
-    plot_history(history, model_type="lstm", path=path, title="RNN model history")
+    plot_history(model.history, model_type="resnet", path=path, title="Resnet model history")
+
+    # print the results
+    print("Resnet model results:")
+    print(model.evaluate(x_test, y_test))
 
     return model
 
@@ -173,22 +194,28 @@ def main():
         # Generate the models:
         ff_nn_model = nn_model(X_train, X_test, y_train, y_test, path)
         rnn_nn_model = rnn_model(X_train, X_test, y_train, y_test, path)
+        resnet_nn_model = resnet(X_train, X_test, y_train, y_test, path)
 
         # predict the stress labels, rounded to the nearest integer:
         y_pred_ff_nn = np.round(ff_nn_model.predict(X_test))
         y_pred_rnn = np.round(rnn_nn_model.predict(X_test))
+        y_pred_resnet = np.round(resnet_nn_model.predict(X_test))
 
         # calculate the mean squared error on the training data:
         mse_ff_nn_train = mean_squared_error(y_train, np.round(ff_nn_model.predict(X_train)))
         mse_rnn_train = mean_squared_error(y_train, np.round(rnn_nn_model.predict(X_train)))
+        mse_resnet_train = mean_squared_error(y_train, np.round(resnet_nn_model.predict(X_train)))
 
         # calculate the mean squared error:
         mse_ff_nn = mean_squared_error(y_test, y_pred_ff_nn)
         mse_rnn = mean_squared_error(y_test, y_pred_rnn)
+        mse_resnet = mean_squared_error(y_test, y_pred_resnet)
+
 
         # calculate the r2 score:
         r2_ff_nn = r2_score(y_test, y_pred_ff_nn)
         r2_rnn = r2_score(y_test, y_pred_rnn)
+        r2_resnet = r2_score(y_test, y_pred_resnet)
 
         with open(path / f"nn_{task}_evaluation.txt", "w") as f:
             f.write("ECG stress prediction results with an un-tuned random forest regressor:")
@@ -197,13 +224,19 @@ def main():
             f.write("\n")
             f.write(f"Train score RNN: {mse_rnn_train:.3f}")
             f.write("\n")
+            f.write(f"Train score RESNET: {mse_resnet_train:.3f}")
+            f.write("\n")
             f.write(f"Test score feed forward: {mse_ff_nn:.3f}")
             f.write("\n")
             f.write(f"Test score RNN: {mse_rnn:.3f}")
             f.write("\n")
+            f.write(f"Test score RESNET: {mse_resnet:.3f}")
+            f.write("\n")
             f.write(f"R2 score feed forward: {r2_ff_nn:.3f}")
             f.write("\n")
             f.write(f"R2 score RNN: {r2_rnn:.3f}")
+            f.write("\n")
+            f.write(f"R2 score RESNET: {r2_resnet:.3f}")
             f.write("\n")
 
 
